@@ -1,0 +1,456 @@
+===QuickRDA version 4.4=== 8/27/2012
+	First Open Source Version
+
+===QuickRDA version 4.3.7=== 8/27/2012
+---Bug Fixes---
+	A number of bug fixes with pattern matching:
+		some matches were erroneously rejected as being cyclical
+			fixing that required duplicate match detection to prevent stack overflow
+		detection wasn't accounting for null (as wild card) in parent left or right
+		detection wasn't continuing to look for longer matches after valid match
+---Minor Enhancements---
+	Now finding patterns of arbitrary depth
+
+===QuickRDA version 4.3.6=== 8/20/2012
+---Minor Enhancements---
+	/showtype allows qualifier as in: /showtype=Role
+		which means that only instances of Role (and Role's subclases) will show [type], but others will not
+	/vstack= provides vertical stacking as in: /vstack=Role
+		specifies only instances of Role (and Role's subclasses) are shown stacked
+	(NOTE: the original /showtype (without =) engages both type showing and vertical attach stacking)
+	Clearing of all validations on dropdown operation is skipped for the worksheet having the build table.
+
+===QuickRDA version 4.3.5=== 8/17/2012
+---Bug Fixes---
+	fixed bug with bad gv node of "null" coming out in .svg for Value types that are off view (not revealed to the graph)
+		(the correct behavior is a mini node instead)
+
+===QuickRDA version 4.3.4=== 7/30/2012
+---Bug Fixes---
+	Move /patfile= processing from phase 0 to phase 2 so it can see metamodel extensions (and model elements)
+
+===QuickRDA version 4.3.3=== 7/25/2012
+---Minor Enhancements---
+	New options (passed thru to GraphViz):
+	/nodesize= where the default value is 10 
+		"attached" items shrink by 1 font size per attachment nesting, so when changing the node font size, you have to tell QuickRDA...
+---Bug Fixes---
+	NPE in linkSecondaries
+
+===QuickRDA version 4.3.2=== 7/25/2012
+---Minor Enhancements---
+	Subclasses of Value now get separate copy for each arrow source and/or target.
+	New options (passed thru to GraphViz):
+	/separation= where the default value is: ranksep="0.8" nodesep="0.8"
+	/nodefont= where the default value is: fontname=Sans fontsize=12
+	/edgefont= where the default value is fontname=Sans fontsize=10 labeldistance=5 
+		Note that /small is equivalent to:
+					/separation=ranksep="0.3" nodesep="0.3"
+					/nodefont=fontname=Sans fontsize=8
+					/edgefont=fontname=Sans fontsize=5 labeldistance=3
+		and /small /small is equivalent to:
+					/separation=ranksep="0.2" nodesep="0.2"
+					/nodefont=fontname=Sans fontsize=6
+					/edgefont=fontname=Sans fontsize=4 labeldistance=3
+---Bug Fixes---
+	Fixed null value recognition due to changes in JACOB 1.17 (still works with JACOB 1.15, too)
+	
+===QuickRDA version 4.3.1=== 06/06/2012
+---Minor Enhancements---
+	New options:
+	/bxrole - draws roles as boxes
+	/atresp - attaches responsibilities to roles
+	/atprov - attaches provided artifacts to responsibilities
+	/gpresp - groups responsibilities to roles
+	/gpprov - groups artifacts to roles
+
+===QuickRDA version 4.3=== 06/06/2012
+---Minor Enhancements---
+	Verify that the open source dependencies on JACOB & GraphViz are binary only and download directly by users.
+
+===QuickRDA version 4.2.5=== 05/31/2012
+---Minor Enhancements---
+	negation operation supported in queries,
+		via "unless" keyword for queries
+
+===QuickRDA version 4.2.4=== 05/23/2012
+---Minor Enhancements---
+	/hideinf hides the results of all inferences (revealed by default) this option makes filtering work better
+	build inclusion can now specify exclusion of a particular column by column header name, which has the same effect as hiding the column
+		but can be codified in the build table
+		instead of "i" or "x" you can add a list of columns to exclude, e.g.: "x-Value Field" assuming Value Field is a column header name.
+	/gvopt= allows specification of graphviz options, such as "overlap=prism overlap_scaling=6 repulsiveforce="2.0" layout=sfdp"
+	added /showtype option for information modeling
+	support for modeling of values as attachments
+	build table v2 replaces top row of build table with bottom row of build table, use (!) Workbook instead of Workbook
+---Minor De-enhancements---
+	removed explicit support for ZGRViewer: it has been replaced by the QuickViz viewer (via the QuickViz.xpi extension to FireFox)
+
+===QuickRDA version 4.2.3=== 04/09/2012
+---Bug Fixes---
+	NPE in sortList when using abstractions
+---Minor Enhancements---
+	better clearing of broken links when using dropdowns
+
+===QuickRDA version 4.2.2=== 03/23/2012
+---Bug Fixes---
+	report bad filter parameter
+
+===QuickRDA version 4.2.1=== 03/01/2012
+---Bug Fixes---
+	NPE in getHashCode on certain patterns.
+	
+===QuickRDA version 4.2.1=== 02/24/2012
+---Bug Fixes---
+	Some missing matches in patterns
+	Initial parameter handling bugs in filters
+
+===QuickRDA version 4.2=== 02/23/2012
+---Minor Enhancements---
+	Performance enhancements: runs faster w/ less memory
+
+===QuickRDA version 4.1.1=== 02/21/2012
+---Bug Fixes---
+	3 pattern match bug fixes
+
+===QuickRDA version 4.1=== 02/07/2012
+---New Features---
+	filtering language
+	default pattern file loaded is QuickRDA home \ QuickRDA.txt
+	/patfile= option loads additional user pattern file
+
+===QuickRDA version 4.02=== 12/14/2011
+---Bug Fixes---
+	operating on files in SharePoint crashes
+	bca mapping not present in template mechanism
+	?sub-operations?
+
+===QuickRDA version 4.01=== 10/5/2011
+---Bug Fixes---
+	Fix NPE when using reachnode w/o pattern
+	Fixed bug in 4.00 regarding mixed and/or lower casing of options introduced during changes of commands switch processing needed for the addition of /run=
+---New Features---
+	Added simple Artifact2Artifact filter to /Apply (note: it is not recursive)
+	Metamodel can define text color as well as background color	for concepts
+	Certain light colors for edges/relationships have been darkened so they will convey better across sharing by virtual rooms
+
+===QuickRDA version 4.00=== 10/4/2011
+---New Feature---
+	Special release for developers 
+		includes loading external plugins from .jar files
+		using JCF and standard java conventions (except for VBA proxy code)
+
+===QuickRDA version 3.30=== 9/16/2011
+---New Feature---
+	/Abstract=relationship
+	/AbstractAll=relationship
+
+===QuickRDA version 3.29=== 9/16/2011
+---New Feature---
+	/apply filter: 
+		matching between two roles: /apply=Role2RolePattern,Role 1,Role 2
+		matching from one role (open ended to other roles): /apply=Role2RolePattern,Role 1
+---Minor Enhancements---
+	For evocations nested in (outer) template, element naming has been flattened to match what happens with elements in the (outer) template
+		meaning that you can now refer to those elements using the qualifier (i.e. substitution is not required)
+	New data type: Timeline Date, which is just a Date, but also graphs a timeline in the diagram with all (visible) Timeline dates
+	New forms tab for BCA Evocations, so they can be condensed
+
+===QuickRDA version 3.27.3===
+---Minor Enhancements---
+	Goals modeling experiment
+	Open metamodel files are preferred over re-opening file of same name; improves the experience of metamodel development when the metamodel file has a path
+	standard templates updated to include /trunc, /reveal, and /connect
+	
+===QuickRDA version 3.27.2===
+---Minor Enhancements---
+	/reveal which reveals nodes referenced relationships in the current view but are hidden
+	begetting (like adding CRUD operations to CRUD Services) is now done in the context of the Service, meaning the additions done but hidden from view if the service is hidden
+
+===QuickRDA version 3.27.1===
+---Bug Fixes---
+	Pattern match failed to find match in a case of cycles
+	Added Apply filtration technique
+
+===QuickRDA version 3.27===
+---Minor Enhancements---
+	Provided By (Consumes Input) added
+	Consumed By (Provides Input) added
+	Manages (Responsiblity->Artifact) deprecated; use Provides instead
+	
+===QuickRDA version 3.26.3===
+---Minor Enhancements---
+	New options:
+		/connect which reveals edges when subject and object are both in the current view
+		/trunc which hides edges whose subject or object are not in the current view
+	
+===QuickRDA version 3.26.2===
+	removed legacy not adding diff when there already was one (for use of legit use of diff in members of templates)
+	fixed graphing anomolies (substitutsions and in evocations not being suppressed)
+	fixed drawing anomolies (no tooltip or click for 2nd arrow of a mini node relation)
+
+===QuickRDA version 3.26.1===
+---Minor Enhancements---
+	abstractions (/resp, /subresp, /subrole, /role) now can be combined with filters (e.g. /select); setup build as with filter; run abstractions after filtering
+
+===QuickRDA version 3.26===
+---Minor Enhancements---
+	QuickRDA.xpi updated to work with FF 6.
+	Info button reports java & excel version individually
+---Bug Fixes---
+	diagramming glitch using /resp; some abstractions failing to remove all of the expected edges from the diagram
+	
+===QuickRDA version 3.25===
+---Bug Fixes---
+	Some dropdowns missing after dropdown buttons used
+
+===QuickRDA version 3.24===
+---New Feature---
+	QuickViz.xpi is a FireFox extension for Zoom and Pan when viewing QuickRDA .svg diagram files.
+	Double-click to install into FireFox.
+---Minor Enhancements---
+	Role2Role Pattern now includes Provide (Consumes Input) and Consumes (Provides Input), and Manages
+---Bug Fixes---
+	Some bugs with gray node features
+	Report function crashing...
+		
+===QuickRDA version 3.23===
+---Bug Fixes---
+	/egoff bug fixed
+	Substitutes erroneously shows up in a number of drop downs
+
+===QuickRDA version 3.22===
+---Minor Enhancements---
+	Further examples of templates.
+---Bug Fixes---
+	Crash when active workbook doesn't have a build table.
+	Regained dropdowns functionality lost of clearing inter workbook validations
+	Entry Form updates to build table, initial drop downs state fixed
+	Graphing bug for containment: reference by edges causing entities to appear in wrong subgraph
+	Graphing bug for secondaries: secondaries not being drawn when of edges
+
+===QuickRDA version 3.21===
+---Minor Enhancements---
+	Some type information now properly going to metadata subgraph so doesn't appear unnecessarily in output
+	minor documentation issue clarified about need for differentiators in Template example
+---Bug Fixes---
+	Crash in dropdowns in some circumstances.
+
+===QuickRDA version 3.20===
+---Minor Enhancements---
+	Compatibility metamodel (Domain Language (DL)) for pre 3.11
+	Allow placement of workbooks (e.g. DL extensions) in ~/ ~\ or just ~ 
+	Build switches now can be found in worksheet section, can be turned on/off with x or blank
+
+===QuickRDA version 3.12===
+---Major Enhancements---
+	New Template feature allows repeated evocation of common patterns
+	Graphing accuracy of edges: edges are now shown as being in their environment so their containment is positively known
+		option to turn off edge group display: /ignoreEdgeGrp
+	Graphing accuracy of nodes: a node can be in more than on container, when so, will be shown with dotted line linkage
+		(useful for templates, when something is in multiple templates)
+---Minor Enhancements---
+	Can comment out/ignore a row without hiding by using first column of new templates
+	Can comment out/ignore column by prepending - to type name in row 2
+	!- feature for referring to the relationships generated by a column
+---Bug Fixes---
+	Duplicates in dropdowns when using metamodel extensions:
+		dropdowns now using build table so that metamodel extensions are seen in the right order (metamodels first)
+---Notes---
+	Excel seems to have stopped automatically installing xlam files on double-click.  I haven't gotten to the bottom of it but
+	suspect its a security patch.  To install the xlam, double-click, then use its pushpin.
+	Support for many old names of relationship has been finally removed.  This means that older existing templates will need updating.
+		
+===QuickRDA version 3.11===
+---Minor Enhancements---
+	Updated Templates: Contextual, Conceptual
+	New Template: Offerings
+	New Feature: Pattern match Role2Role
+	Bug fix in Contextual to Conceptual Mapping
+
+===QuickRDA version 3.10===
+---Bug Fixes---
+	Fix dropdowns (broken in 3j24x24)
+---Minor Enhancements---
+	Reset version numbers
+		versions are 3.xx when .jar and .xlam match version numbers 
+		(otherwise you get 3jddxdd, separate version report for .jar and .xlam)
+
+===QuickRDA version 3.0j24x24===
+---Added External Metamodel reading capability---
+
+===QuickRDA version 3.0j21x21===
+---Major Enhancements---
+	Most of the executable code is in java
+	Numerous new features; lots left to do...
+
+===QuickRDA version 2.7.5===
+---Minor New Features---
+	UI to Role relationship added	
+---Minor Bug Fix---
+	some problems with reporting due to renamed properties
+
+===QuickRDA version 2.7.3===
+---Minor New Features---
+	build option /nolabels as workaround for GraphViz triangulation failed/init graph failures
+		
+===QuickRDA version 2.7===
+---Major Enhancements---
+	Installation changed & much simplified for new users of the tool.
+	Compared with the previous installation methods the following are no longer needed:
+		Manually install the QAT buttons
+		Setting QuickRDA environment variable
+		Trust settings for the folder
+	Users of previous installation may remove their QAT customizations, the QuickRDA environment variable, and the Excel trust settings on the home QuickRDA folder
+	Installation of the Excel tool now consists of:
+		1. unpack QuickRDA Bits X.XX.zip
+		2. double-click QuickRDA.xlam
+		3. say yes to enable macros, if necessary
+		4. select the PushPin QAT menu item
+	(If you don't have it, GraphViz from AT&T still needs to be installed
+	 and Firefox is recommended as the viewer, since it's the only one that works with the link back feature)
+	The manual has been updated to reflect the new install, and,
+	There is a section that describes removal of the unnessary but harmless redudancies from older installations.	
+---Minor Enhancements---
+	Several Contextual and Conceptual relationships are renamed to make them more clear using verbs:
+		e.g. List Of --> Is A List Of	
+		(old form still accepted but will have a cell dropdown indicator encouraging update)
+	Fundamental Object relationships with Documents so that they can decompose (but not into more Fundamental Objects)
+
+===QuickRDA version 2.6.3===
+---Minor Bug Fix---
+	Fixed bug in DMI export; Provenance & Assertions section
+---Minor Enhancements---
+	Dropdown button clears all validations, which helps after a worksheet tab is copy & pasted to another workbook
+	(Much) improved error messages for column references not found.
+	
+===QuickRDA version 2.6.2===
+---Minor New Features---
+	Fundamental Object relationships
+	/obfuscate switch (exposed, previously internal only) for reporting bugs in graphviz
+---Minor Enhancements---
+	performance improvements (in Export phase 3)
+---Minor Bug Fix---
+	Fix crash when abstract property had undefined left or right portion
+
+===QuickRDA version 2.6.1===
+	Typo fixed in the Template on the Example Actors tab
+
+===QuickRDA version 2.6===
+---Major Features---
+	Automatic upgrade of concept type when first introduced with lower types
+	Forgo grouping or attachment when grouped or attached to more than one item
+	New documentation set
+	Updated template
+---Major Bug Fix---
+	Dropdown function for Excel 2007 crashed on list sizes of 1
+	Fixed bug in reachnode with unqualified item
+---Minor Bug Fix---
+	Don't suppress graphing of assigned to that's same role as parent resp, if parent resp is being hidden by filtering
+	Filtering expressions canceled search chain erroneously, leaving some nodes out of ReachNode
+
+===QuickRDA version 2.5===
+---Minor New Features---
+	/dmi & /zdl options
+	Csv files, or any table with "QuickRDA" at 1,1, and table below
+	2nd dropdown option that includes all domain model elements as well as domain metamodel
+	If color value is non-blank but less than 2 characters the cell's fill color is used.
+---Minor Bug Fix---
+	Crash with zero roles, responsibilities, in report
+	Bug in spaces for table names (group)
+	Added report on fundamental objects
+	Removed erroneous cr in some role names
+
+===QuickRDA version 2.4===
+---Major Features---
+	Formalized notion of abstract properties of the form a->b
+	Metamodel work:
+		Contextual & Concedptual Metamodel simplified based on not having to use sub properties
+			since abstract properties work better and automatically
+
+===QuickRDA Version 2.3===
+---Bug fix---
+	Deconflicted Tower and Service namespace; Towers no longer have every feature of Services
+
+===QuickRDA Version 2.2===
+---Bug fix---
+	QuickRDA broken on 64-bit Excel
+---Minor bug fix---
+	Highlight feature coloring changed from red to pink to deconflict with error color
+
+===QuickRDA Version 2.1.3===
+---Minor bug fix---
+	Some coloring was not coming out red (in error) like it should
+	Bug in reachnode didn't find paths that were common with other paths in the same iteration
+	Inf. loop in certain diagrams
+
+===QuickRDA Version 2.1.1===
+---Minor enhancement---
+	Version of QuickRDA appears in diagram title
+
+===QuickRDA Version 2.0.2.3===
+---Minor bug fixes---
+	Errors in metamodel show up in RED
+
+===QuickRDA Version 2.0.2.2===
+---New features---
+	Advanced Diagram Abstraction via Diagram-Abstraction Filters (see user's guide)!
+	Template includes latest Conceptual Architecture, with mappings from Contextual
+
+===QuickRDA Version 1.8.5.14===
+---New features---
+	Report function (use switch /report)
+
+===QuickRDA Version 1.8.5.11===
+---New features---
+	Conceptual metamodel: services, towers...
+	Contextual to Conceptual mapping
+---Minor bug fixes---
+	Dropdowns for relationships now honor option to include/exclude user-defined items just like dropdowns for concepts
+
+===QuickRDA Version 1.8.5.10===
+---Minor bug fixes---
+	Clarified that link back feature works only with current/last drawn diagram
+	Fixed inefficiency related to that
+
+===QuickRDA Version 1.8.5.9===
+---Minor bug fixes---
+	1. highlight feature wasn't applying to linked relationships
+	2. regenerate dropdowns was broken for tables starting beyond column A
+
+===QuickRDA Version 1.8.5.8===
+---Minor bug fixes---
+	1. character set encoding issue with fancy quote character
+	2. link back (provenance) for inferencing generated nodes & edges, which also made
+		the highlight feature work for inferencing generated nodes & edges
+	3. tooltip & link back for a group itself (subgraph)
+
+===QuickRDA Version 1.8.5.7===
+---New features---
+	1. Meta model generator supports use of DOT features clustering and HTML-like labels
+    	    Use of the Attached To property yields HTML-like labels; use of the In Group property yields clusters
+
+	2. Meta model supports general notion of that a property attach(es) or group(s) (or reverse attach or reverse group)
+	    And other properties as following attach or group (and reverse)
+	    Making it easy to alter graphs to use clusters or HTML-like labels
+
+	3. New option /atob attaches Fundamental Objects to their service
+	    New option /nocont forgoes default containment inferencing
+
+===QuickRDA Version 1.8.5.4===
+---Minor bug fixes---
+	1. Fix ZGRViewer working with build tab
+	2. Performance improvements for ZGRViewer
+
+===QuickRDA Version 1.8.5.3===
+---New features---
+	1. There is a new highlight feature.  When graphing, whatever rows are selected on the active sheet are highlighted in the graph.
+	2. Artifacts are rounded rectangles now instead of squared off for a more pleasing look.
+
+===QuickRDA Version 1.8.5.1===
+---New features---
+	1. There is a new link back feature.
+	    After building a graph, and while viewing it, you can click on any node or edge and that will take you back to the row in the spreadsheet that first defines that node or edge.
+	    It works great in firefox; not chrome yet.
+
+	2. Performance improvements on large graphs.

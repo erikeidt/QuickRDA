@@ -1,0 +1,52 @@
+Here’s the set up for binaries:
+
+Determine a folder suitable for executables (we'll refer to it as the QuickRDA home folder).
+
+Unpack the files of QuickRDA-Bits.zip into this QuickRDA home folder.
+
+Obtain the JACOB libraries from here:
+	zip download --> http://sourceforge.net/projects/jacob-project/
+and unpack them into a folder called "JACOB" inside this QuickRDA home folder.
+
+Double-click on the .xlam file to install it into Excel, and 
+Download and install GraphViz 2.28.
+
+We recommend Firefox with the QuickViz Firefox plugin for viewing .svg files.
+
+===
+
+Here’s the set up to work in eclipse:
+ 
+Prerequisites:    
+	git command line tools if desired (or just download zip files)
+	eclipse (juno)
+ 
+(You don’t need GraphViz, Firefox, or QuickViz for the build to work.)
+ 
+You want to set up the following folders somewhere as siblings of each other:
+ 
+  (1)	JACOB — this folder is just an unpacked copy of jacob-1.17-M2.zip from SourceForge 
+	zip download --> http://sourceforge.net/projects/jacob-project/
+ 
+  (2)	JEB — download from github using this command line:
+	for git --> git clone https://github.com/erikeidt/JEB.git
+	zip download --> visit https://github.com/erikeidt/JEB
+ 
+  (3)	QuickRDA-XLFiles — download from github using:
+	for git --> git clone https://github.com/erikeidt/QuickRDA-XLFiles.git
+	zip download --> visit https://github.com/erikeidt/QuickRDA-XLFiles
+ 
+  (4)	QuickRDA — download from github using:
+	for git --> git clone https://github.com/erikeidt/QuickRDA.git
+	zip download --> visit https://github.com/erikeidt/QuickRDA
+ 
+Then launch eclipse and “Import…”    “Existing Projects into Workspace” (this order is preferred):
+	(1) JEB, (2) QuickRDA-XLFiles, (3) QuickRDA.
+ 
+That’s it!  It should automatically have built everything by the time you’re done.  
+ 
+You’ll can install the development version from QuickRDA\bin (i.e. install the QuickRDA.xlam file) and, 
+you can find the binary bits for distribution in QuickRDA\bin\QuickRDA-Bits.zip.
+
+There is also (5) the GeneratorPluginExample for doing independent generator plugins.
+	https://github.com/erikeidt/QuickRDA-GeneratorPluginExample.git

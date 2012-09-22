@@ -1,0 +1,54 @@
+<?xml version="1.0" ?>
+<!-- Configuration of the Ant build system to generate a Jar file --> 
+<project name="Build JAR" default="CreateJar">
+  <target name="Full" depends="CreateJar,CopyFiles,CutBits" description="Create QuickRDA.jar and QuickRDA-Bits.zip">
+  </target> 
+  <target name="Clean">
+  	<delete file="./QuickRDA.jar"/>
+  	<delete file="./QuickRDA-Bits.zip" />
+  </target>
+  <target name="CreateJar" description="Create Jar file">
+		<!-- delete file="./QuickRDA.jar" / -->
+        <jar jarfile="./QuickRDA.jar">
+			<fileset dir="./" includes="**/*.class" />
+			<fileset dir="./../" includes="*.txt">
+				<exclude name="What*.txt"/>
+			</fileset>
+			<fileset dir="./../" includes="README*" />
+		</jar>
+  </target>
+  <target name="CopyFiles" description="Copy sub-project files">
+	<copy todir="./">
+    	<fileset dir="./../../QuickRDA-XLFiles/XLFiles" />    	
+		<fileset dir="./../../JEB/bin/" includes="JEB.jar" />
+			<fileset dir="./../" includes="INSTALL.txt" /> 
+			<fileset dir="./../" includes="What*.txt" /> 
+  	</copy>
+  	<copy todir="./">
+    	<fileset dir="./../../JEB/" includes="*.txt" />
+		<globmapper from="*" to="JEB.jar *"/>
+  	</copy>
+  	<copy todir="./">
+    	<fileset dir="./../../QuickRDA-XLFiles/" includes="*.txt" />
+		<globmapper from="*" to="QuickRDA-XLFiles *"/>
+  	</copy>
+  	<copy todir="./">
+    	<fileset dir="./../">
+    		<include name="ABOUT.txt"/>
+			<include name="LICENSE.txt"/>
+		</fileset>
+		<globmapper from="*" to="QuickRDA.jar *"/>
+  	</copy>
+  </target>
+  <target name="CutBits" description="Cut Release Bits">
+		<!-- delete file="./QuickRDA-Bits.zip" / -->
+ 		<zip destfile="./QuickRDA-Bits.zip">
+			<fileset dir="./">
+				<exclude name="com/" />
+				<exclude name="QuickRDA-Bits.zip" />
+				<exclude name="JACOB" />
+				<exclude name="build.xml" />
+			</fileset>
+		</zip>
+  </target>
+</project>
