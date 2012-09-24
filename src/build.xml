@@ -21,8 +21,9 @@
 	<copy todir="./">
     	<fileset dir="./../../QuickRDA-XLFiles/XLFiles" />    	
 		<fileset dir="./../../JEB/bin/" includes="JEB.jar" />
-			<fileset dir="./../" includes="INSTALL.txt" /> 
-			<fileset dir="./../" includes="What*.txt" /> 
+		<fileset dir="./../" includes="INSTALL.txt" /> 
+		<fileset dir="./../" includes="What*.txt" /> 
+		<fileset dir="./../../JACOB" />
   	</copy>
   	<copy todir="./">
     	<fileset dir="./../../JEB/" includes="*.txt" />
@@ -46,7 +47,7 @@
 			<fileset dir="./">
 				<exclude name="com/" />
 				<exclude name="QuickRDA-Bits.zip" />
-				<exclude name="JACOB" />
+				<exclude name="JACOB/" />
 				<exclude name="build.xml" />
 			</fileset>
 		</zip>
