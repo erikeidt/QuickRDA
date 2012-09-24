@@ -8,10 +8,14 @@ Obtain the JACOB libraries from here:
 	zip download --> http://sourceforge.net/projects/jacob-project/
 and unpack them into a folder called "JACOB" inside this QuickRDA home folder.
 
-Double-click on the .xlam file to install it into Excel, and 
+Double-click on the .xlam file to install it into Excel, then use the pushpin button. 
+
 Download and install GraphViz 2.28.
+	http://www.graphviz.org/
 
 We recommend Firefox with the QuickViz Firefox plugin for viewing .svg files.
+	http://www.mozilla.org/en-US/firefox/fx/
+	https://github.com/erikeidt/QuickViz/downloads
 
 ===
 
