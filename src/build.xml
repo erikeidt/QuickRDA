@@ -52,5 +52,9 @@
 				<exclude name="build.xml" />
 			</fileset>
 		</zip>
+  		<zip destfile="./QuickRDA-Docs.zip">
+			<fileset dir="./../docs/">
+  			</fileset>
+  		</zip>
   </target>
 </project>
