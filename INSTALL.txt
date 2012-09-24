@@ -17,6 +17,9 @@ We recommend Firefox with the QuickViz Firefox plugin for viewing .svg files.
 	http://www.mozilla.org/en-US/firefox/fx/
 	https://github.com/erikeidt/QuickViz/downloads
 
+QuickRDA also uses Java.
+	http://www.java.com/en/download/index.jsp
+
 ===
 
 Here’s the set up to work in eclipse:
