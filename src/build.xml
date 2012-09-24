@@ -47,6 +47,7 @@
 			<fileset dir="./">
 				<exclude name="com/" />
 				<exclude name="QuickRDA-Bits.zip" />
+				<exclude name="~*" />
 				<exclude name="JACOB/" />
 				<exclude name="build.xml" />
 			</fileset>

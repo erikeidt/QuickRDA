@@ -32,7 +32,9 @@ Prerequisites:
  
 You want to set up the following folders somewhere as siblings of each other:
  
-  (1)	JACOB — this folder is just an unpacked copy of jacob-1.17-M2.zip from SourceForge 
+  (1)	JACOB — this folder is just unpacked copy of jacob-1.17-M2.zip from SourceForge into a subfolder called JACOB.
+  		Please NOTE: The build expects an extra heirarchical level here so, use an sub folder also named JACOB:
+  			JACOB/JACOB/ should have the JACOB files (jacob.jar, jacob*.dll, LICENSE, README).
 	zip download --> http://sourceforge.net/projects/jacob-project/
  
   (2)	JEB — download from github using this command line:
@@ -57,3 +59,6 @@ you can find the binary bits for distribution in QuickRDA\bin\QuickRDA-Bits.zip.
 
 There is also (5) the GeneratorPluginExample for doing independent generator plugins.
 	https://github.com/erikeidt/QuickRDA-GeneratorPluginExample.git
+
+The QuickRDA build is set up to allow QuickRDA/bin to be the QuickRDA home folder for the binaries.
+Install the .xlam file copy from the QuickRDA/bin folder.
