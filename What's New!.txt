@@ -1,3 +1,7 @@
+===QuickRDA version 4.4.1=== 10/1/2012
+---Minor Enhancements---
+	New filtration build command: hide, which hides its input set.
+
 ===QuickRDA version 4.4=== 8/27/2012
 	First Open Source Version
 

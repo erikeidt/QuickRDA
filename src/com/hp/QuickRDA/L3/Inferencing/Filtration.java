@@ -351,6 +351,21 @@ public class Filtration {
 				}
 				vwGray.toSet ().mergeListIntoSet ( mLIn );
 				mLOut = mLIn;
+			} else if ( "hide".equals ( op ) ) {
+				if ( first ) {
+					mLIn = vw.toSet ();
+					vw.clear();
+				}
+				else {
+					int cnt = mLIn.size();
+					for (int i = 0; i < cnt; i++ ) {
+						DMIElem m = mLIn.get(i);
+						vw.remove(m);
+						if (vwGray != null)
+						vwGray.remove(m);
+					}
+				}
+				mLOut = mLIn;
 			}
 
 			// #if ( false ) {

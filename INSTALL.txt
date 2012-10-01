@@ -36,7 +36,7 @@ Prerequisites:
 You want to set up the following folders somewhere as siblings of each other:
  
   (1)	JACOB — this folder is just unpacked copy of jacob-1.17-M2.zip from SourceForge into a subfolder called JACOB.
-  		Please NOTE: The build expects an extra heirarchical level here so, use an sub folder also named JACOB:
+  		Please NOTE: The build expects an extra hierarchical level here so, use an sub folder also named JACOB:
   			JACOB/JACOB/ should have the JACOB files (jacob.jar, jacob*.dll, LICENSE, README).
 	zip download --> http://sourceforge.net/projects/jacob-project/
  
