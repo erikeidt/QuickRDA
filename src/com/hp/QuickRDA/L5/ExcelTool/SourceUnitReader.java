@@ -714,7 +714,7 @@ public class SourceUnitReader {
 		//        m.itsURL = val
 		//    }
 		if ( "Description".equals ( attr ) ) {
-			if ( "".equals ( m.itsDescription ) ) {
+			if (m.itsDescription == null || "".equals ( m.itsDescription ) ) {
 				m.itsDescription = val;
 			}
 		} else if ( "Color".equals ( attr ) ) {

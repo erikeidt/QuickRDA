@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry combineaccessrules="false" kind="src" path="/QuickRDA-XLFiles"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/JEB"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/JEB"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/QuickRDA-XLFiles"/>
+	<classpathentry kind="lib" path="/JEB/bin/JACOB/jacob.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

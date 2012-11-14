@@ -120,7 +120,7 @@ public class Filtration {
 				// Tracing.startTracing ( Tracing.TraceWave | Tracing.TraceFrame | Tracing.TraceFrameX | Tracing.TraceFrameY /*| Tracing.TraceFrameZ */);
 				// int a = 1;
 
-				String pat = Strings.tSplitAfter ( cmd, xx, "," ).toLowerCase ();
+				String pat = Strings.tSplitAfter ( cmd, xx, "," );
 				cmd = xx.str;
 				ISet<DMIElem> xV = InferencingUtilities.makeList ( cmd, xx, cm.itsBaseVocab.gConcept, cm, true );
 				WaveTraverser wvt = new WaveTraverser ( cm );

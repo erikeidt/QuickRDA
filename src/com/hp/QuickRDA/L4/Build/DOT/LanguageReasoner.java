@@ -631,6 +631,7 @@ public class LanguageReasoner {
 
 		String xURLStr = composeLinkBackURL ( pe );
 		String desc = NameUtilities.getDescriptionFor ( pe, itsGraph );
+		if (desc == null) desc = "ToolTip";
 
 		x.urlStr = "";
 

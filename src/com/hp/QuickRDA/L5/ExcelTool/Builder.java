@@ -28,6 +28,7 @@ import java.util.List;
 import com.hp.JEB.*;
 import com.hp.QuickRDA.Excel.*;
 import com.hp.QuickRDA.L0.lang.*;
+import com.hp.QuickRDA.L0.lang.XSetList.AsListOrSet;
 import com.hp.QuickRDA.L1.Core.*;
 import com.hp.QuickRDA.L2.Names.*;
 import com.hp.QuickRDA.L3.Inferencing.*;
@@ -47,6 +48,7 @@ public class Builder {
 	private MetamodelReader		itsMMReader;
 
 	private List<String>		itsFilters			= new XSetList<String> ();
+	private List<String>        itsActivePatterns	= new XSetList<String> (AsListOrSet.AsSet, true);
 	public List<String>			itsGeneratorPlugins	= new XSetList<String> ();
 
 	public IList<TableReader>	itsHeaders			= new XSetList<TableReader> ();
@@ -67,10 +69,27 @@ public class Builder {
 			vwGray = vw2;
 		}
 	}
-
+	
+	private void loadSystemPatterns(boolean dropdowns) {
+		
+		BufferedReader in = TextFile.openTheFileForRead ( Start.gAppInstallPath, BuildOptions.gQuickRDABasePatternsFileName, BuildOptions.gQuickRDABasePatternsFileSuffix, null );
+		if ( in != null ) {
+			// Hide template stuff from Dropdowns, TemplateFiler defined in QuickRDA.txt or similar dmp
+			if (dropdowns) addFilter("/filter=TemplateFilter;hide"); 
+			TextToPattern ttp = new TextToPattern ( in, itsNamedPatternMgr, itsConceptMgr );
+			// Tracing.openLog ();
+			// int a = 1;
+			ttp.parseAndAddPatterns (itsActivePatterns);
+		}
+	
+	}
+	
 	public DualView build ( String filePath, TableReader buildTab, boolean isBuildTableV2, int ci, Range highlightR, boolean dropdowns ) {
 		buildStart ();
+		buildMetaModels(filePath, buildTab, isBuildTableV2 );
+		System.out.println("mmbuilt");
 		buildGraphFromInfo ( filePath, buildTab, isBuildTableV2, ci, highlightR, dropdowns );
+		loadSystemPatterns(dropdowns);
 		return buildFinish ();
 	}
 
@@ -140,15 +159,7 @@ public class Builder {
 		itsConceptMgr.setDefaultSubgraph ( itsConceptMgr.itsVisiblexSG );
 
 		itsNamedPatternMgr = new NamedPatternManager ();
-		BufferedReader in = TextFile.openTheFileForRead ( Start.gAppInstallPath, BuildOptions.gQuickRDABasePatternsFileName, BuildOptions.gQuickRDABasePatternsFileSuffix, null );
-		if ( in != null ) {
-			TextToPattern ttp = new TextToPattern ( in, itsNamedPatternMgr, itsConceptMgr );
-			// Tracing.openLog ();
-			// int a = 1;
-			ttp.parseAndAddPatterns ();
-		}
-
-		// System.out.println("mmbuilt");
+		
 	}
 
 	public DualView buildFinish () {
@@ -202,6 +213,66 @@ public class Builder {
 
 		return new DualView ( vw, vwGray );
 	}
+	
+	private void buildMMfromWorkSheet(Worksheet wks, boolean mmvis) {
+		String sheetname = wks.Name();
+		if (sheetname.endsWith("Metamodel")) {
+			Range mmtR = wks.FindTableRangeOnSheet ();
+			if ( mmtR != null ) {
+				itsConceptMgr.clearProvenance ();
+				// Range tblR = Utilities_SSU.RangeOfInterestMinusHeaders(tbl.Range(),1);
+				TableReader mTab = new TableReader ( 2, mmtR, TableReader.AllCells | TableReader.TrackRows );
+				DMISubgraph sg = null;
+				System.out.println("Building metamodel from " + sheetname);
+				if ( !mmvis )
+					sg = itsConceptMgr.setDefaultSubgraph ( itsDomainLanguage );
+				itsMMReader.bindToConceptManagerConfiguration ( itsConceptMgr );
+				itsMMReader.buildFromMMTable ( mTab, 1, 9 );
+				if ( sg != null )
+					itsConceptMgr.setDefaultSubgraph ( sg );
+			}
+		}
+	}
+	
+	private void buildMetaModels(String filePath, TableReader buildTab, boolean isBuildTableV2) {
+		for ( int r = isBuildTableV2 ? 1 : 2; r <= buildTab.RowLast () - (isBuildTableV2 ? 0 : 1); r++ ) { 
+
+			String wkbName = buildTab.GetValue ( r, 1 ); 
+			String sheetName = buildTab.GetValue ( r, 2 ); 
+			if ("".equals(wkbName) && "".equals(sheetName)) continue;
+			if (sheetName.startsWith("\\") || sheetName.startsWith("/")) continue;
+			String path = filePath;
+
+			if ( wkbName.startsWith ( "~" ) ) {
+				path = Start.gAppInstallPath;
+				if ( wkbName.startsWith ( "~\\" ) || wkbName.startsWith ( "~/" ) )
+					wkbName = wkbName.substring ( 2 );
+				else
+					wkbName = wkbName.substring ( 1 );
+			}
+
+			if ( !"".equals ( wkbName ) || !"".equals ( sheetName ) ) {
+				Workbook wkb = Start.openBook ( path, wkbName, true );
+				if ( wkb != null ) {
+					if ( "".equals ( sheetName ) ) {
+						Worksheets wkss = wkb.Worksheets ();
+						int ixc = wkss.Count ();
+						for ( int i = 1; i <= ixc; i++ ) {
+							Worksheet wks = wkss.Item ( i );
+							buildMMfromWorkSheet(wks, false); //Invisible
+						}
+					} else {
+						Worksheet wks = wkb.Worksheets ( sheetName );
+						if ( wks == null )
+							lang.errMsg ( "Worksheet not found: " + sheetName );
+						else
+							buildMMfromWorkSheet ( wks, false );
+
+					}
+				}
+			}
+		} // for each row
+	}
 
 	private void buildGraphFromInfo ( String filePath, TableReader buildTab, boolean isBuildTableV2, int ci, Range highlightR, boolean dropdowns ) {
 		buildGraphFromInfoPass ( filePath, buildTab, isBuildTableV2, ci, 0, highlightR, dropdowns );
@@ -222,7 +293,7 @@ public class Builder {
 			else if ( "/subrole".equals ( f ) )
 				Abstraction.promotePCToParentRoles ( itsBaseVocab, itsConceptMgr, itsOptions.gOptionAutoHide, vw );
 			else if ( "/role".equals ( f ) )
-				Abstraction.promtePCRoleToInteractsWith ( itsBaseVocab, itsConceptMgr, itsOptions.gOptionAutoHide, vw );
+				Abstraction.promotePCRoleToInteractsWith ( itsBaseVocab, itsConceptMgr, itsOptions.gOptionAutoHide, vw );
 			else if ( "/connect".equals ( f ) )
 				Visibility.revealRelationshipsForNodesInView ( vw );
 			else if ( "/reveal".equals ( f ) )
@@ -244,6 +315,41 @@ public class Builder {
 		return vwGray;
 	}
 
+	private String extractPattern(String fltrIn) { // lifted from DMIView runfilter
+		String f = Strings.Mid ( fltrIn, 2 );
+		String pat = "";
+		StringRef xx = new StringRef ();
+
+		String cmd = Strings.tSplitAfter ( f, xx, ";" );
+		f = xx.str;
+
+		while ( !"".equals ( cmd ) && "".equals(pat) ) {
+			String op = Strings.tSplitAfter ( cmd, xx, "=" ).toLowerCase ();
+			cmd = xx.str;
+			if ( "".equals ( op ) ) {
+				// do nothing
+			} else if ( "filter".equals ( op ) ) {
+				pat = Strings.tSplitAfter ( cmd, xx, "," );
+			} else if ( "apply1".equals ( op ) ) {
+				pat = Strings.tSplitAfter ( cmd, xx, "," );
+			} else if ( "apply*".equals ( op ) ) {
+				pat = Strings.tSplitAfter ( cmd, xx, "," );
+			}
+			cmd = Strings.tSplitAfter ( f, xx, ";" );
+			f = xx.str;
+		}
+		return pat;
+	}
+	
+	private void addFilter(String f) {
+		itsFilters.add(f);
+		String pat = extractPattern(f); // get referenced query pattern
+		if (!"".equals(pat)) {
+			itsActivePatterns.add(pat);
+			System.out.println("Found pattern " + pat);
+		}
+	}
+	
 	private void processSwitches ( String incl, String mcIncl, int stage, String filePath ) {
 		final String runEq = "/run=";
 		final String gvOptEq = "/gvopt=";
@@ -389,7 +495,7 @@ public class Builder {
 			} else if ( incl.startsWith ( nodeSizeEq ) ) {
 				itsOptions.gNodeFontSize = Integer.parseInt ( mcIncl.substring ( nodeSizeEq.length () ) );
 			} else {
-				itsFilters.add ( mcIncl );
+				addFilter( mcIncl );
 			}
 		} else if ( stage == 1 ) {
 			;
@@ -404,7 +510,7 @@ public class Builder {
 						lang.errMsg ( "Could not find the pattern file: " + filePrefix + BuildOptions.gQuickRDABasePatternsFileSuffix + "\nlooked in:\n\t" + filePath + ", and,\n\t" + Start.gAppInstallPath );
 					else {
 						TextToPattern ttp = new TextToPattern ( in, itsNamedPatternMgr, itsConceptMgr );
-						ttp.parseAndAddPatterns ();
+						ttp.parseAndAddPatterns (itsActivePatterns);
 					}
 				} catch ( Exception e ) {
 					lang.errMsg ( e.getMessage () );
@@ -446,8 +552,10 @@ public class Builder {
 				boolean vis = (!"i".equals ( incl ) && !incl.startsWith ( "i-" ));
 				if ( sheetName.startsWith ( "\\" ) )
 					;
-				else if ( sheetName.startsWith ( "/" ) )
-					processSwitches ( sheetName.toLowerCase (), sheetName, stage, filePath );
+				else if ( sheetName.startsWith ( "/" )) 
+					if (dropdowns) 
+						;
+					else processSwitches ( sheetName.toLowerCase (), sheetName, stage, filePath );
 				else if ( stage == 1 ) {
 					DMISubgraph defSG = null;
 					if ( !vis )
@@ -473,7 +581,7 @@ public class Builder {
 							Workbook wkb = Start.openBook ( path, wkbName, true );
 							if ( wkb != null ) {
 								if ( "".equals ( sheetName ) ) {
-									buildGraphFromWorkBook ( wkb, highlightR, vis, columnExclusions );
+										buildGraphFromWorkBook ( wkb, highlightR, vis, columnExclusions );
 								} else {
 									Worksheet wks = wkb.Worksheets ( sheetName );
 									if ( wks == null )
@@ -532,24 +640,6 @@ public class Builder {
 				itsConceptMgr.setProvenanceInfo ( wks.Parent ().Name (), wks.Name (), sutR.Row () );
 				Application.StatusBar ( "Working on workbook: " + wks.Parent ().Name () + ", worksheet: " + wks.Name () );
 				buildGraphFromRangeObject ( wkb, wks, sutR, highlightR, columnExclusions );
-			} else {
-				if ( name == null )
-					name = wks.Name ();
-				if ( name != null && (name.indexOf ( "QuickRDA Metamodel" ) >= 0 || name.indexOf ( "QuickRDA DL" ) >= 0) ) {
-					Range mmtR = wks.FindTableRangeOnSheet ();
-					if ( mmtR != null ) {
-						itsConceptMgr.clearProvenance ();
-						// Range tblR = Utilities_SSU.RangeOfInterestMinusHeaders(tbl.Range(),1);
-						TableReader mTab = new TableReader ( 2, mmtR, TableReader.AllCells | TableReader.TrackRows );
-						DMISubgraph sg = null;
-						if ( !mmvis )
-							sg = itsConceptMgr.setDefaultSubgraph ( itsDomainLanguage );
-						itsMMReader.bindToConceptManagerConfiguration ( itsConceptMgr );
-						itsMMReader.buildFromMMTable ( mTab, 1, 9 );
-						if ( sg != null )
-							itsConceptMgr.setDefaultSubgraph ( sg );
-					}
-				}
 			}
 		}
 		/*
