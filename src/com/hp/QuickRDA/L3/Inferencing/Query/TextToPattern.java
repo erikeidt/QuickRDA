@@ -438,10 +438,10 @@ public class TextToPattern {
 
 			hlqs = parseBody ( nqv );
 			if (activePatterns.contains(patternName)) {
-				System.out.println("Adding pattern " + patternName);
+				// System.out.println("Adding pattern " + patternName);
 				NamedPatternManager.NamedPattern npf = assemblePatternFrame ( patternName, inferredStatements, nqv, hlqs );
 				itsPM.add ( npf );
-			} else System.out.println("Rejecting pattern " + patternName);
+			} // else System.out.println("Rejecting pattern " + patternName);
 		}
 
 		itsTkn.close ();

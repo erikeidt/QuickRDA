@@ -87,7 +87,7 @@ public class Builder {
 	public DualView build ( String filePath, TableReader buildTab, boolean isBuildTableV2, int ci, Range highlightR, boolean dropdowns ) {
 		buildStart ();
 		buildMetaModels(filePath, buildTab, isBuildTableV2 );
-		System.out.println("mmbuilt");
+		// System.out.println("mmbuilt");
 		buildGraphFromInfo ( filePath, buildTab, isBuildTableV2, ci, highlightR, dropdowns );
 		loadSystemPatterns(dropdowns);
 		return buildFinish ();
@@ -223,7 +223,7 @@ public class Builder {
 				// Range tblR = Utilities_SSU.RangeOfInterestMinusHeaders(tbl.Range(),1);
 				TableReader mTab = new TableReader ( 2, mmtR, TableReader.AllCells | TableReader.TrackRows );
 				DMISubgraph sg = null;
-				System.out.println("Building metamodel from " + sheetname);
+				// System.out.println("Building metamodel from " + sheetname);
 				if ( !mmvis )
 					sg = itsConceptMgr.setDefaultSubgraph ( itsDomainLanguage );
 				itsMMReader.bindToConceptManagerConfiguration ( itsConceptMgr );
@@ -328,13 +328,9 @@ public class Builder {
 			cmd = xx.str;
 			if ( "".equals ( op ) ) {
 				// do nothing
-			} else if ( "filter".equals ( op ) ) {
+			} else if ( "filter".equals ( op ) || "apply1".equals ( op ) ||  "apply*".equals ( op )) {
 				pat = Strings.tSplitAfter ( cmd, xx, "," );
-			} else if ( "apply1".equals ( op ) ) {
-				pat = Strings.tSplitAfter ( cmd, xx, "," );
-			} else if ( "apply*".equals ( op ) ) {
-				pat = Strings.tSplitAfter ( cmd, xx, "," );
-			}
+			} 
 			cmd = Strings.tSplitAfter ( f, xx, ";" );
 			f = xx.str;
 		}
@@ -346,7 +342,7 @@ public class Builder {
 		String pat = extractPattern(f); // get referenced query pattern
 		if (!"".equals(pat)) {
 			itsActivePatterns.add(pat);
-			System.out.println("Found pattern " + pat);
+			// System.out.println("Found pattern " + pat);
 		}
 	}
 	

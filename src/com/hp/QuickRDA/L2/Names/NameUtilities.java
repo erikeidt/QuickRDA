@@ -76,7 +76,7 @@ public class NameUtilities {
 	}
 
 	public static String getDescriptionFor ( DMIElem m, DMIGraph g ) {
-		return m.itsDescription;
+		return  (m.itsDescription == null) ? "" : m.itsDescription;
 	}
 
 	public static String getURLFor ( DMIElem m, DMIGraph g ) {
