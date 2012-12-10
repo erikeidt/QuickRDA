@@ -1,3 +1,6 @@
+===QuickRDA version 4.4.4=== 12/10/2012 dpenkler@gmail.com
+Bug Fix: dropdowns not generating for items in metamodel -> now reading metamodels with viz=true for DD
+
 ===QuickRDA version 4.4.3=== 11/14/2012 dpenkler@gmail.com
 Independent metamodel loads:
 Worksheets were the name ends with the string "Metamodel" will be loaded as metamodel.
