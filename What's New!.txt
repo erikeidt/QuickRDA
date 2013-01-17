@@ -1,3 +1,7 @@
+===QuickRDA version 4.4.2=== 01/17/2012
+---Bug Fixes---
+	Repaired TimelineDate (after Value changes broke it).
+
 ===QuickRDA version 4.4.1=== 10/1/2012
 ---Minor Enhancements---
 	New filtration build command: hide, which hides its input set.

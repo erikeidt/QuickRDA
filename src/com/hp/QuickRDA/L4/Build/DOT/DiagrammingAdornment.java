@@ -42,7 +42,7 @@ public class DiagrammingAdornment {
 
 	public DiagrammingAdornment ( DMIElem m, DMIBaseVocabulary b ) {
 		itsConcept = m;
-		itsIsValue = m.instanceOf ( b.gValue );
+		itsIsValue = m.instanceOf ( b.gValue ) && !m.instanceOf( b.gTimelineDate );
 	}
 
 	public DiagrammingPrimary getPrimaryAlias () {
