@@ -136,6 +136,19 @@ public class LanguageReasoner {
 
 			}
 		}
+
+		// Ensure "reference target" for attaching and grouping arrows, so we can attach or group to something
+		// This means that these arrows will get a (mini) node (only not so mini in these cases).
+		for ( int i = 0; i < qV.size (); i++ ) {
+			DMIElem m = qV.get ( i );
+			if ( m != null ) {
+				DiagrammingAdornment dda = getAdornment ( m );
+				DiagrammingAlias a = dda.getPrimaryAlias ();
+				if ( m.isStatement () && (a.isGrouping () || a.isAttaching ()) ) {
+					dda.forceReferenceTargetAlias ();
+				}
+			}
+		}
 	}
 
 	private void environmentAnalysis () {
@@ -173,7 +186,6 @@ public class LanguageReasoner {
 				DiagrammingAdornment ea = null;
 				if ( env != null )
 					ea = getAdornment ( env );
-
 
 				p.itsSubjectAlias = referenceTarget ( m.itsSubject, env, ea );
 				p.itsObjectAlias = referenceTarget ( m.itsObject, env, ea );
@@ -489,21 +501,34 @@ public class LanguageReasoner {
 		//		}
 	}
 
-	@SuppressWarnings("all")
-	private static class NodeFormatInfo {
+	private static class FormatInfo {
 		String	aType;
 		String	AName;
-		String	theShape;
 		String	shapeColor;
 		String	borderColor;
 		String	fontColor;
 		String	urlStr;
-		// String	wrapStr;
+	}
+
+	private static class NodeFormatInfo extends FormatInfo {
+		String	theShape;
+		// String wrapStr;
 		boolean	stack;
+		@SuppressWarnings("unused")
 		boolean	wrap;
 		String	styleStr;
 		String	fontStr;
 	};
+
+	private static class LabelFormatInfo extends FormatInfo {
+		String	dir;
+		boolean	swapSbOb;
+		String	edgeStr;
+		String	lab;
+		String	arrowStr;
+		String	fontName;
+	}
+
 
 	private void setNodeValues ( DMIElem elm, String graphID, DMIElem parIn, NodeFormatInfo x ) {
 		DMIElem par;
@@ -525,9 +550,11 @@ public class LanguageReasoner {
 				x.aType = "Concept";
 			} else {
 				if ( par != elm ) {
-					x.aType = NameUtilities.firstName ( par, itsGraph, false, false );
-				}
-				else {
+					if ( pd.itsDisplay != null && !"".equals ( pd.itsDisplay ) ) // ELE 1/25/2013, take display name for type when available
+						x.aType = pd.itsDisplay;
+					else
+						x.aType = NameUtilities.firstName ( par, itsGraph, false, false );
+				} else {
 					ISet<DMIElem> z = elm.itsDeclaredTypeList;
 					if ( z.size () > 0 ) {
 						x.aType = NameUtilities.firstName ( z.get ( 0 ), itsGraph, false, false );
@@ -535,10 +562,15 @@ public class LanguageReasoner {
 				}
 			}
 			if ( elm == null ) {} else {
-				if ( itsOptions.gOptionTrimDiff ) {
-					x.AName = NameUtilities.trimDifferentiator ( NameUtilities.firstName ( elm, itsGraph, false, false ) );
-				} else {
-					x.AName = NameUtilities.firstName ( elm, itsGraph, false, false );
+				if ( elm.isStatement () ) { // ELE 1/25/2013, give arrows empty name
+					x.AName = "";
+				}
+				else {
+					if ( itsOptions.gOptionTrimDiff ) {
+						x.AName = NameUtilities.trimDifferentiator ( NameUtilities.firstName ( elm, itsGraph, false, false ) );
+					} else {
+						x.AName = NameUtilities.firstName ( elm, itsGraph, false, false );
+					}
 				}
 			}
 		}
@@ -684,16 +716,16 @@ public class LanguageReasoner {
 			content = a.itsGraphID + " [ " + "label=" + x.AName;
 		}
 
-		content += " " + "shape=\"" + x.theShape + "\" " +
-				"fillcolor=\"" + x.shapeColor + "\" ";
+		content += " " + "shape=\"" + x.theShape + "\" " + "fillcolor=\"" + x.shapeColor + "\" ";
 
 		if ( x.fontColor != null )
 			content += "fontcolor=\"" + x.fontColor + "\" ";
 
 		if ( m.itsBoldTag ) {
 			// "color=""red"" "
-			content += "color=\"" + BuildOptions.gHighlightColor + "\" " +
-					"style=\"" + x.styleStr + "\" penwidth=\"" + BuildOptions.gHighlightLineWidth + "\" "; // style&=setlinewidth(4),fontsize=14
+			content += "color=\"" + BuildOptions.gHighlightColor + "\" "
+					+ "style=\"" + x.styleStr 
+					+ "\" penwidth=\"" + BuildOptions.gHighlightLineWidth + "\" "; // style&=setlinewidth(4),fontsize=14
 		} else {
 			// special coloring for the border of nested items so that nested items can be seen better
 			if ( a.getGroupCount () == 0 ) {
@@ -744,7 +776,8 @@ public class LanguageReasoner {
 							printEdgeAlias ( n, e, y );
 							// PrintPrimaryEdge(n, q, y, true);
 						} else {
-							if ( !(e instanceof DiagrammingPrimary) || !dda.getPrimaryAlias ().itsSuppress ) { // Suppressed in case of Value copies that are referred to
+							if ( !(e instanceof DiagrammingPrimary) || !dda.getPrimaryAlias ().itsSuppress ) {
+								// Suppressed in case of Value copies that are referred to
 								NodeFormatInfo y = new NodeFormatInfo ();
 								setNodeValues ( n, e.itsGraphID, dda.itsDiagParent, y );
 								printAlias ( n, e, y, x );
@@ -939,21 +972,6 @@ public class LanguageReasoner {
 		return ans;
 	}
 
-	private static class LabelFormatInfo {
-		String	dir;
-		@SuppressWarnings("unused")
-		String	aType;
-		String	AName;
-		boolean	swapSbOb;
-		String	edgeStr;
-		String	lab;
-		String	arrowStr;
-		String	shapeColor;
-		String	fontColor;
-		String	fontName;
-		String	urlStr;
-	}
-
 	private void setEdgeValues ( DMIElem elm, String graphID, DMIElem parIn, LabelFormatInfo x ) {
 		DMIElem par;
 		par = parIn;
@@ -1118,11 +1136,7 @@ public class LanguageReasoner {
 			tt = NameUtilities.getMCText ( a.itsConcept.itsVerb );
 		String content;
 
-		content = a.itsGraphID + " [ "
-				+ "label=\"\" "
-				+ "shape=\"circle\" "
-				+ "fillcolor=\"" + shapeColor + "\" "
-				+ "color=\"" + shapeColor + "\" ";
+		content = a.itsGraphID + " [ " + "label=\"\" " + "shape=\"circle\" " + "fillcolor=\"" + shapeColor + "\" " + "color=\"" + shapeColor + "\" ";
 
 		String lk = composeLinkBackURL ( a );
 		if ( lk != null )
@@ -1131,9 +1145,9 @@ public class LanguageReasoner {
 			content += "tooltip=\"" + escapeTextForDOTTooltip ( tt ) + "\" ";
 
 		if ( onView && (a.itsConcept.itsBoldTag || lrg) ) {
-			content = content + "style=\"filled\" width=\"0.1\" height=\"0.1\" ]";
+			content += "style=\"filled\" width=\"0.1\" height=\"0.1\" ]";
 		} else {
-			content = content + "style=\"filled\" width=\"0.05\" height=\"0.05\" ]";
+			content += "style=\"filled\" width=\"0.05\" height=\"0.05\" ]";
 		}
 
 		itsDOTOutput.println ( content );
@@ -1158,12 +1172,24 @@ public class LanguageReasoner {
 		DiagrammingPrimary p = dda.getPrimaryAlias ();
 		LabelFormatInfo x = new LabelFormatInfo ();
 		setEdgeValues ( m, p.itsGraphID, getAdornment ( m ).itsDiagParent, x );
-		printPrimaryEdge ( m, p, x, false );
+		printPrimaryEdge ( m, p, x, false, dda );
 	}
 
-	private void printPrimaryEdge ( DMIElem m, DiagrammingPrimary p, LabelFormatInfo x, boolean onlyMiniNode ) {
+	private void printPrimaryEdge ( DMIElem m, DiagrammingPrimary p, LabelFormatInfo x, boolean onlyMiniNode, DiagrammingAdornment dda ) {
 		if ( p.itsReferenceTarget != null && !p.itsMiniNodeAlreadyGenerated ) {
-			genMiniNode ( p.itsReferenceTarget, x.shapeColor, true, false );
+			// ELE 1/2/2013 this arrow has a "reference target":
+			// if it is grouping or attaching, then it gets a full node otherwise a mini node.
+			if ( p.isGrouping () || p.isAttaching () ) {
+				DiagrammingAlias s = p.itsReferenceTarget;
+				dda.getPrimaryAlias ().itsGraphID = s.itsGraphID;
+				NodeFormatInfo xx = new NodeFormatInfo ();
+				setNodeValues ( m, s.itsGraphID, dda.itsDiagParent, xx );
+				xx.theShape = "box";
+				printAlias ( m, p, xx, null );
+			}
+			else {
+				genMiniNode ( p.itsReferenceTarget, x.shapeColor, true, false );
+			}
 			p.itsMiniNodeAlreadyGenerated = true;
 		}
 
@@ -1259,8 +1285,10 @@ public class LanguageReasoner {
 					+ "color=\"" + x.shapeColor + "\" ";
 			// #}
 			if ( m.itsBoldTag ) {
-				//content = content + "fontcolor=""red"" penwidth=""4"" " ' style=""setlinewidth(3)"",fontsize=""12""
-				content += "fontcolor=\"" + BuildOptions.gHighlightTextColor + "\" penwidth=\"" + BuildOptions.gHighlightLineWidth + "\" "; // style=""setlinewidth(3)"",fontsize=""12""
+				// content = content + "fontcolor=""red"" penwidth=""4"" " ' style=""setlinewidth(3)"",fontsize=""12""
+				content += "fontcolor=\"" + BuildOptions.gHighlightTextColor
+						+ "\" penwidth=\"" + BuildOptions.gHighlightLineWidth
+						+ "\" "; // style=""setlinewidth(3)"",fontsize=""12""
 			} else {
 				content += "fontcolor=\"" + x.fontColor + "\" ";
 			}

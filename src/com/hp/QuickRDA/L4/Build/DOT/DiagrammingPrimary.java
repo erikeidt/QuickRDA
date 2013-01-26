@@ -35,7 +35,7 @@ public class DiagrammingPrimary extends DiagrammingAlias {
 
 	public DiagrammingAlias			itsReferenceTarget;
 
-	public boolean					itsMiniNodeInvisible;
+	// public boolean					itsMiniNodeInvisible;
 	public boolean					itsMiniNodeAlreadyGenerated;
 	public boolean					itsSuppress;
 
@@ -78,6 +78,10 @@ public class DiagrammingPrimary extends DiagrammingAlias {
 		return itsGroupments;
 	}
 
+	public boolean isAttaching() {
+		return getAttachCount () > 0;
+	}
+	
 	public int getAttachCount () {
 		return (itsAttachments == null ? 0 : itsAttachments.size ());
 	}

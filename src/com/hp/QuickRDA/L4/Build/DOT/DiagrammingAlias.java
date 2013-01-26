@@ -44,6 +44,10 @@ public class DiagrammingAlias {
 		this ( m );
 		itsEnvironment = env;
 	}
+	
+	public boolean isAttaching() {
+		return false;
+	}
 
 	public boolean isGrouping () {
 		return false;
