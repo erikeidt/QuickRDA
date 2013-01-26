@@ -130,9 +130,11 @@ public class DiagrammingAdornment {
 		assert itsConcept.isGrouping () || itsConcept.isStatement ();
 		if ( itsPrimaryAlias.itsReferenceTarget == null ) {
 			itsPrimaryAlias.itsReferenceTarget = new DiagrammingAlias ( itsConcept, itsPrimaryAlias.itsEnvironment );
+			/*
 			if ( itsPrimaryAlias.getGroupCount () > 0 )
 				itsPrimaryAlias.itsMiniNodeInvisible = true;
-
+			*/
+			
 			/*
 			if ( itsConcept.IsStatement() ) {
 				itsPrimaryAlias.itsMiniNodeInvisible = false;
