@@ -531,6 +531,10 @@ public class LanguageReasoner {
 
 
 	private void setNodeValues ( DMIElem elm, String graphID, DMIElem parIn, NodeFormatInfo x ) {
+		setNodeValues ( elm, graphID, parIn, x, false );
+	}
+	
+	private void setNodeValues ( DMIElem elm, String graphID, DMIElem parIn, NodeFormatInfo x, boolean hasArrowColoring ) {
 		DMIElem par;
 		DMIElementDiagrammingInfo pd = null;
 		if ( parIn == null ) {
@@ -628,6 +632,8 @@ public class LanguageReasoner {
 			} else {
 				if ( gry ) {
 					x.shapeColor = "#" + myHex ( convertBGRtoRGB ( factorBrightness ( pd.itsColor, BuildOptions.gGreyedNodeBrightnessFactor ) ) );
+				} else if ( hasArrowColoring ) {
+					x.shapeColor = "#" + myHex ( convertBGRtoRGB ( factorBrightness ( pd.itsColor, 1d / BuildOptions.gLineBrightnessFactor ) ) );
 				} else {
 					x.shapeColor = "#" + myHex ( convertBGRtoRGB ( pd.itsColor ) );
 				}
@@ -1183,7 +1189,7 @@ public class LanguageReasoner {
 				DiagrammingAlias s = p.itsReferenceTarget;
 				dda.getPrimaryAlias ().itsGraphID = s.itsGraphID;
 				NodeFormatInfo xx = new NodeFormatInfo ();
-				setNodeValues ( m, s.itsGraphID, dda.itsDiagParent, xx );
+				setNodeValues ( m, s.itsGraphID, dda.itsDiagParent, xx, true );
 				xx.theShape = "box";
 				printAlias ( m, p, xx, null );
 			}
