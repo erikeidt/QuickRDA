@@ -86,7 +86,7 @@ public class Builder {
 	
 	public DualView build ( String filePath, TableReader buildTab, boolean isBuildTableV2, int ci, Range highlightR, boolean dropdowns ) {
 		buildStart ();
-		buildMetaModels(filePath, buildTab, isBuildTableV2 );
+		buildMetaModels(filePath, buildTab, isBuildTableV2, dropdowns );
 		// System.out.println("mmbuilt");
 		buildGraphFromInfo ( filePath, buildTab, isBuildTableV2, ci, highlightR, dropdowns );
 		loadSystemPatterns(dropdowns);
@@ -234,7 +234,8 @@ public class Builder {
 		}
 	}
 	
-	private void buildMetaModels(String filePath, TableReader buildTab, boolean isBuildTableV2) {
+	private void buildMetaModels(String filePath, TableReader buildTab, boolean isBuildTableV2, boolean dropdowns) {
+		boolean viz = dropdowns;
 		for ( int r = isBuildTableV2 ? 1 : 2; r <= buildTab.RowLast () - (isBuildTableV2 ? 0 : 1); r++ ) { 
 
 			String wkbName = buildTab.GetValue ( r, 1 ); 
@@ -259,14 +260,14 @@ public class Builder {
 						int ixc = wkss.Count ();
 						for ( int i = 1; i <= ixc; i++ ) {
 							Worksheet wks = wkss.Item ( i );
-							buildMMfromWorkSheet(wks, false); //Invisible
+							buildMMfromWorkSheet(wks, viz); //Invisible
 						}
 					} else {
 						Worksheet wks = wkb.Worksheets ( sheetName );
 						if ( wks == null )
 							lang.errMsg ( "Worksheet not found: " + sheetName );
 						else
-							buildMMfromWorkSheet ( wks, false );
+							buildMMfromWorkSheet ( wks, viz );
 
 					}
 				}

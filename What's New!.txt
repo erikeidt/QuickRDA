@@ -1,8 +1,14 @@
+<<<<<<< HEAD
 ===QuickRDA version 4.4.5=== 01/17/2012
 ---Minor Enhancements---
 	Enabled use of metamodel format Display for types
 	Support attach and grouping with relationships (prior only with regular concepts)
 	
+=======
+===QuickRDA version 4.4.4=== 12/10/2012 dpenkler@gmail.com
+Bug Fix: dropdowns not generating for items in metamodel -> now reading metamodels with viz=true for DD
+
+>>>>>>> remotes/origin/V4.4.4
 ===QuickRDA version 4.4.3=== 11/14/2012 dpenkler@gmail.com
 Independent metamodel loads:
 Worksheets were the name ends with the string "Metamodel" will be loaded as metamodel.
