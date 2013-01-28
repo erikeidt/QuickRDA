@@ -141,7 +141,7 @@ public class Abstraction {
 		promotePC ( b.gRole, b.gMemberOf, b.gMemberOf, b.gRoleConsumes, b.gRoleProvides, b.gRoleConsumes, b.gRoleProvides, autohide, false, conceptMgr, vw );
 	}
 
-	public static void promtePCRoleToInteractsWith ( DMIBaseVocabulary b, ConceptManager conceptMgr, boolean autohide, DMIView vw ) {
+	public static void promotePCRoleToInteractsWith ( DMIBaseVocabulary b, ConceptManager conceptMgr, boolean autohide, DMIView vw ) {
 		flattenPC ( b.gRole, b.gRoleConsumes, b.gRoleProvides, b.gInteractsWith, b.gInteractsWith, autohide, conceptMgr, vw );
 	}
 

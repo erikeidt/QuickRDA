@@ -63,7 +63,7 @@ public class Start {
 		gMMWKB = Application.Workbooks ().Item ( mmwkb ); // gMMWKB = ThisWorkbook;
 		if ( gMMWKB == null )
 			throw new RuntimeException ( "Could not locate workbook " + mmwkb );
-		gMMWKS = gMMWKB.Worksheets ( "MetaModel" );
+		gMMWKS = gMMWKB.Worksheets ( "DMI" );
 		if ( gMMWKS == null )
 			throw new RuntimeException ( "Could not locate MetaModel worksheet.;" );
 		gMMWKB.Activate ();
@@ -176,18 +176,24 @@ public class Start {
 					wkb = Application.Workbooks ( simpleName + ".csv" );
 					if ( wkb == null ) {
 						wkb = Application.Workbooks ( simpleName + ".xlsm" );
+						if ( wkb == null ) {	
+							wkb = Application.Workbooks ( simpleName + ".xlam" );
 						if ( wkb == null && loadIfNotOpen ) {
 							wkb = Application.Workbooks ().Open ( filePath + "\\" + bookName + ".xlsx" );
 							if ( wkb == null ) {
 								wkb = Application.Workbooks ().Open ( filePath + "\\" + bookName + ".csv" );
 								if ( wkb == null ) {
 									wkb = Application.Workbooks ().Open ( filePath + "\\" + bookName + ".xlsm" );
+									if ( wkb == null ) {
+										wkb = Application.Workbooks ().Open ( filePath + "\\" + bookName + ".xlam" );
+									}	
 								}
 							}
 						}
 					}
 				}
-			} catch ( Exception e ) {
+			}
+			}catch ( Exception e ) {
 				e.printStackTrace ();
 			}
 		}

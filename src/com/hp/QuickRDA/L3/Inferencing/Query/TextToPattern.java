@@ -23,6 +23,7 @@ package com.hp.QuickRDA.L3.Inferencing.Query;
 
 import java.io.BufferedReader;
 import java.io.PrintStream;
+import java.util.List;
 
 import com.hp.QuickRDA.L0.lang.*;
 import com.hp.QuickRDA.L1.Core.*;
@@ -379,7 +380,7 @@ public class TextToPattern {
 			out.print ( "\t" );
 	}
 
-	public void parseAndAddPatterns () {
+	public void parseAndAddPatterns (List<String> activePatterns) {
 		for ( ;; ) {
 			String patternName = null;
 			IList<NamedQueryVariable> nqv = new XSetList<NamedQueryVariable> ();
@@ -436,9 +437,11 @@ public class TextToPattern {
 			itsTkn.expectToken ( "where" );
 
 			hlqs = parseBody ( nqv );
-
-			NamedPatternManager.NamedPattern npf = assemblePatternFrame ( patternName, inferredStatements, nqv, hlqs );
-			itsPM.add ( npf );
+			if (activePatterns.contains(patternName)) {
+				// System.out.println("Adding pattern " + patternName);
+				NamedPatternManager.NamedPattern npf = assemblePatternFrame ( patternName, inferredStatements, nqv, hlqs );
+				itsPM.add ( npf );
+			} // else System.out.println("Rejecting pattern " + patternName);
 		}
 
 		itsTkn.close ();

@@ -30,7 +30,7 @@ public class DropDownGenerator implements IGeneratorPlugin {
 	public String generate ( GenerationInfo genInfo, String cmd ) {
 
 		Dropdowns d = new Dropdowns ();
-		d.generateDropdowns ( genInfo.itsBuilder, (cmd.indexOf ( ",full" ) >= 0), BuildOptions.gOptionIncludeUnderlyingMetaModelItems );
+		d.generateDropdowns ( genInfo.itsBuilder, genInfo.itsFocusView, (cmd.indexOf ( ",full" ) >= 0), BuildOptions.gOptionIncludeUnderlyingMetaModelItems );
 
 		return null;
 	}

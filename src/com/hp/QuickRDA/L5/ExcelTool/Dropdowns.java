@@ -45,7 +45,7 @@ public class Dropdowns {
 	private List<DropDownSource>	ddValidationSources;
 	private List<DropDownTarget>	ddValidationTargets;
 
-	public void generateDropdowns ( Builder bldr, boolean inclDomainModelItems, boolean inclUnderlyingMetaModelItems ) {
+	public void generateDropdowns ( Builder bldr, DMIView dmvw, boolean inclDomainModelItems, boolean inclUnderlyingMetaModelItems ) {
 
 		for ( ;; ) {
 			ddValidationSources = null;
@@ -73,7 +73,7 @@ public class Dropdowns {
 						tb.itsWks.Cells ().Validation ().Delete ();
 					} catch ( Exception e ) {}
 
-					generateDropdownsForTable ( tb.itsWks, sutR, inclDomainModelItems, inclUnderlyingMetaModelItems, bldr );
+					generateDropdownsForTable ( tb.itsWks, sutR, inclDomainModelItems, inclUnderlyingMetaModelItems, bldr, dmvw);
 					bldr.itsHeaders.clear ( i ); /* why bother?? */
 				}
 			}
@@ -89,14 +89,14 @@ public class Dropdowns {
 		// bldr.Destroy();
 	}
 
-	private void generateDropdownsForTable ( Worksheet wks, Range hdrR, boolean inclDomainModelItems, boolean inclUnderlyingMetaModelItems, Builder bldr ) {
+	private void generateDropdownsForTable ( Worksheet wks, Range hdrR, boolean inclDomainModelItems, boolean inclUnderlyingMetaModelItems, Builder bldr, DMIView dmvw ) {
 		TableReader headerTab = new TableReader ( hdrR, SourceUnitReader.kTableToFirstRowOffset, TableReader.FirstAllRestVisibleByFirst | TableReader.TrackRows );
 		int cxc = hdrR.Columns ().Count ();
 		for ( int cx = 1; cx <= cxc; cx++ )
-			generateDropdownsForColumn ( wks, headerTab, cx, inclDomainModelItems, inclUnderlyingMetaModelItems, bldr );
+			generateDropdownsForColumn ( wks, headerTab, cx, inclDomainModelItems, inclUnderlyingMetaModelItems, bldr, dmvw );
 	}
 
-	private void generateDropdownsForColumn ( Worksheet wks, TableReader headerTab, int c, boolean inclDomainModelItems, boolean inclUnderlyingMetaModelItems, Builder bldr ) {
+	private void generateDropdownsForColumn ( Worksheet wks, TableReader headerTab, int c, boolean inclDomainModelItems, boolean inclUnderlyingMetaModelItems, Builder bldr, DMIView dmvw ) {
 		String t = SourceUnitReader.columnTypeValue ( headerTab, c );
 
 		//don't handle typeless columns in this format; skip whole column
@@ -111,7 +111,7 @@ public class Dropdowns {
 			if ( ddValidationSources != null )
 				ddSourceIndex = findInList ( NameUtilities.getMCText ( te ), ddValidationSources );
 			if ( ddSourceIndex < 0 ) {
-				DropDownSource ddSrc = setupDDSource ( te, inclDomainModelItems, inclUnderlyingMetaModelItems, bldr );
+				DropDownSource ddSrc = setupDDSource ( te, inclDomainModelItems, inclUnderlyingMetaModelItems, bldr, dmvw );
 				if ( ddSrc != null ) {
 					if ( ddValidationSources == null )
 						ddValidationSources = new XSetList<DropDownSource> ();
@@ -136,7 +136,7 @@ public class Dropdowns {
 		}
 	}
 
-	private static DropDownSource setupDDSource ( DMIElem tm, boolean inclDomainModelItems, boolean inclUnderlyingMetaModelItems, Builder bldr ) {
+	private static DropDownSource setupDDSource ( DMIElem tm, boolean inclDomainModelItems, boolean inclUnderlyingMetaModelItems, Builder bldr, DMIView dmvw ) {
 		ISet<DMIElem> mV = null;
 
 		if ( tm.instanceOf ( bldr.itsBaseVocab.gProperty ) ) {
@@ -149,7 +149,7 @@ public class Dropdowns {
 		} else if ( tm.instanceOf ( bldr.itsBaseVocab.gClass ) ) {
 			DMIElementDiagrammingInfo di = tm.itsDiagrammingInfo;
 			if ( di == null || !"0".equals ( di.itsDDViz ) ) {
-				mV = getAllInstances ( tm, inclDomainModelItems, inclUnderlyingMetaModelItems, bldr );
+				mV = getAllInstances ( tm, inclDomainModelItems, inclUnderlyingMetaModelItems, bldr, dmvw );
 				if ( tm != bldr.itsBaseVocab.gboolean ) {
 					NameUtilities.sortList ( mV, NameUtilities.SortKindEnum.SortByLCName );
 				}
@@ -174,23 +174,27 @@ public class Dropdowns {
 		return dds;
 	}
 
-	private static ISet<DMIElem> getAllInstances ( DMIElem tm, boolean inclDomainModelItems, boolean inclUnderlyingMetaModelItems, Builder bldr ) {
+	private static ISet<DMIElem> getAllInstances ( DMIElem tm, boolean inclDomainModelItems, boolean inclUnderlyingMetaModelItems, Builder bldr, DMIView dmvw ) {
 		@SuppressWarnings("unchecked")
 		ISet<DMIElem> ans = (ISet<DMIElem>) tm.itsFullInstanceSet.clone ();
 
 		for ( int i = 0; i < ans.size (); i++ ) {
 			DMIElem m = ans.get ( i );
 			if ( m != null ) {
-				DMIElementDiagrammingInfo di = m.itsDiagrammingInfo;
-				if ( di == null ) {
-					if ( m.itsSubgraph.atLevel ( DMISubgraph.SubgraphLevelEnum.kDomainModel ) && !inclDomainModelItems ) {
-						ans.clear ( i );
-					}
-				} else {
-					if ( "1".equals ( di.itsDDViz ) )
-						;
-					else if ( "0".equals ( di.itsDDViz ) || (m.itsSubgraph.atLevel ( DMISubgraph.SubgraphLevelEnum.kDomainModel ) && !inclDomainModelItems) ) {
-						ans.clear ( i );
+				if (!dmvw.inView(m)) { // if element not revealed in the view remove it from the list of candidates
+						ans.clear(i);
+					} else {
+					DMIElementDiagrammingInfo di = m.itsDiagrammingInfo;
+					if ( di == null ) {
+						if ( m.itsSubgraph.atLevel ( DMISubgraph.SubgraphLevelEnum.kDomainModel ) && !inclDomainModelItems ) {
+							ans.clear ( i );
+						}
+					} else {
+						if ( "1".equals ( di.itsDDViz ) )
+							;
+						else if ( "0".equals ( di.itsDDViz ) || (m.itsSubgraph.atLevel ( DMISubgraph.SubgraphLevelEnum.kDomainModel ) && !inclDomainModelItems) ) {
+							ans.clear ( i );
+						}
 					}
 				}
 			}

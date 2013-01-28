@@ -115,12 +115,16 @@ public class Filtration {
 				pattern = cmd.toLowerCase ();
 				mLOut = mLIn;
 				*/
-			} else if ( "filter".equals ( op ) ) {
-
+			} else if ( "filter".equals ( op ) || "apply1".equals ( op ) ||  "apply*".equals ( op )) {
+				boolean infer = false;
+				boolean loop  = false;
+				if      ("filter".equals ( op )) { infer = false; loop = false; }
+				else if ("apply1".equals ( op )) { infer = true;  loop = false; }
+				else if ("apply*".equals ( op )) { infer = true;  loop = true;  }
 				// Tracing.startTracing ( Tracing.TraceWave | Tracing.TraceFrame | Tracing.TraceFrameX | Tracing.TraceFrameY /*| Tracing.TraceFrameZ */);
 				// int a = 1;
 
-				String pat = Strings.tSplitAfter ( cmd, xx, "," ).toLowerCase ();
+				String pat = Strings.tSplitAfter ( cmd, xx, "," );
 				cmd = xx.str;
 				ISet<DMIElem> xV = InferencingUtilities.makeList ( cmd, xx, cm.itsBaseVocab.gConcept, cm, true );
 				WaveTraverser wvt = new WaveTraverser ( cm );
@@ -133,43 +137,7 @@ public class Filtration {
 						suggested = new XSetList<DMIElem> ( AsListOrSet.AsSet );
 						bf.suggestSearchSources ( suggested, cm );
 					}
-					xV = wvt.traverse ( xV, new BoundFork ( bf ), false, false, suggested );
-				}
-				revealDMIList ( xV, mLOut, false, vw, null );
-			} else if ( "apply1".equals ( op ) ) {
-				// Tracing.startTracing (Tracing.TraceWave | Tracing.TraceFrame | Tracing.TraceFrameX | Tracing.TraceFrameY /*| Tracing.TraceFrameZ */);
-				String pat = Strings.tSplitAfter ( cmd, xx, "," ).toLowerCase ();
-				cmd = xx.str;
-				ISet<DMIElem> xV = InferencingUtilities.makeList ( cmd, xx, cm.itsBaseVocab.gConcept, cm, true );
-				WaveTraverser wvt = new WaveTraverser ( cm );
-				BoundFrame bf = npm.primePattern ( pat, xV );
-				if ( bf == null )
-					lang.errMsg ( "Couldn't find pattern to apply: " + pat );
-				else {
-					ISet<DMIElem> suggested = null;
-					if ( xV.size () == 0 ) {
-						suggested = new XSetList<DMIElem> ( AsListOrSet.AsSet );
-						bf.suggestSearchSources ( suggested, cm );
-					}
-					xV = wvt.traverse ( xV, new BoundFork ( bf ), true, false, suggested );
-				}
-				revealDMIList ( xV, mLOut, false, vw, null );
-			} else if ( "apply*".equals ( op ) ) {
-				// Tracing.startTracing (Tracing.TraceWave | Tracing.TraceFrame | Tracing.TraceFrameX | Tracing.TraceFrameY /*| Tracing.TraceFrameZ */);
-				String pat = Strings.tSplitAfter ( cmd, xx, "," ).toLowerCase ();
-				cmd = xx.str;
-				ISet<DMIElem> xV = InferencingUtilities.makeList ( cmd, xx, cm.itsBaseVocab.gConcept, cm, true );
-				WaveTraverser wvt = new WaveTraverser ( cm );
-				BoundFrame bf = npm.primePattern ( pat, xV );
-				if ( bf == null )
-					lang.errMsg ( "Couldn't find pattern to apply: " + pat );
-				else {
-					ISet<DMIElem> suggested = null;
-					if ( xV.size () == 0 ) {
-						suggested = new XSetList<DMIElem> ( AsListOrSet.AsSet );
-						bf.suggestSearchSources ( suggested, cm );
-					}
-					xV = wvt.traverse ( xV, new BoundFork ( bf ), true, true, suggested );
+					xV = wvt.traverse ( xV, new BoundFork ( bf ), infer, loop, suggested );
 				}
 				revealDMIList ( xV, mLOut, false, vw, null );
 			} else if ( "hideall".equals ( op ) ) {
