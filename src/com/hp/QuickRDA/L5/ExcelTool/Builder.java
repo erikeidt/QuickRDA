@@ -216,7 +216,7 @@ public class Builder {
 	
 	private void buildMMfromWorkSheet(Worksheet wks, boolean mmvis) {
 		String sheetname = wks.Name();
-		if (sheetname.endsWith("Metamodel")) {
+		if (sheetname.endsWith("Metamodel") || sheetname.endsWith (" DL")) {
 			Range mmtR = wks.FindTableRangeOnSheet ();
 			if ( mmtR != null ) {
 				itsConceptMgr.clearProvenance ();
