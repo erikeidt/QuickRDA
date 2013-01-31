@@ -1418,7 +1418,8 @@ public class LanguageReasoner {
 
 	public static String escapeTextForDOTTooltip ( String sIn ) {
 		//it's not really HTML, but it's not really DOT either...
-		return esacpeTextForDOT ( sIn );
+		return escapeTextForHTML ( sIn );
+		// return esacpeTextForDOT ( sIn );
 		//DOTTooltipEscapeText = URLEncode(sIn, true, false, True)
 	}
 
@@ -1446,6 +1447,8 @@ public class LanguageReasoner {
 		s = Strings.Replace ( s, '’', "&apos;" );
 		s = Strings.Replace ( s, '<', "&lt;" );
 		s = Strings.Replace ( s, '>', "&gt;" );
+		s = Strings.Replace ( s, '—', "&#8212;");
+		s = Strings.Replace ( s, '…', "&#8230;");
 		return s;
 	}
 

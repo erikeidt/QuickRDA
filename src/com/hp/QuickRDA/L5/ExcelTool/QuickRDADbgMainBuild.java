@@ -22,7 +22,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 package com.hp.QuickRDA.L5.ExcelTool;
 
 import com.hp.QuickRDA.L4.Build.*;
-
 // import com.hp.QuickRDA.L0.lang.*;
 
 public class QuickRDADbgMainBuild {
@@ -35,7 +34,13 @@ public class QuickRDADbgMainBuild {
 	 * You should have the current working directory set to XLDev in you run/debug configurations
 	 */
 	public static void commonMainDebug ( String command, boolean XLSM ) {
-		String args[] = new String [] { "build", ".", "QuickRDA.xlam" };
+		String myPath = ".";
+		try {
+			java.io.File currentDirectory = new java.io.File(new java.io.File(".").getAbsolutePath());
+			myPath = currentDirectory.getCanonicalPath();
+		} catch (Exception e) {}
+		
+		String args[] = new String [] { "build", myPath, "QuickRDA.xlam" };
 
 		args [ 0 ] = command;
 

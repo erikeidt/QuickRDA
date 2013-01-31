@@ -22,6 +22,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 package com.hp.QuickRDA.L5.ExcelTool;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 // import java.text.DecimalFormat;
 
 import com.hp.JEB.*;
@@ -44,7 +46,6 @@ public class Start {
 	public static String		gAppInstallPath;
 	public static String		gQuickRDATEMPPath;
 	public static String		gLinkbackPath;
-
 
 	public static boolean initialize ( String path, String mmwkb ) {
 		if ( gInitialized )
@@ -72,7 +73,21 @@ public class Start {
 		return gInitialized;
 	}
 
+	private static List<WorkbookReference>	gWorkOpenedWorkbooks	= new ArrayList<WorkbookReference> ();
+
+	public static void track ( WorkbookReference wkbRef ) {
+		gWorkOpenedWorkbooks.add ( wkbRef );
+	}
+
 	public static void release () {
+		for ( int i = 0; i < gWorkOpenedWorkbooks.size (); i++ ) {
+			WorkbookReference wkbRef = gWorkOpenedWorkbooks.get ( i );
+			if ( !wkbRef.wasAlreadyOpen && wkbRef.wkb != null ) {
+				wkbRef.wasAlreadyOpen = false;
+				wkbRef.wkb.Close ( false, null, false );
+				wkbRef.wkb = null;
+			}
+		}
 		try {
 			// don't leave excel in a bad state!!
 			if ( Application.ActiveWorkbook != null )
@@ -160,44 +175,69 @@ public class Start {
 		return "?";
 	}
 
-	public static Workbook openBook ( String filePath, String bookName, boolean loadIfNotOpen ) {
-		Workbook wkb;
+	public static class WorkbookReference {
+		Workbook	wkb;
+		boolean		wasAlreadyOpen;
+
+		WorkbookReference ( Workbook w, boolean alreadyOpen ) {
+			wkb = w;
+			wasAlreadyOpen = alreadyOpen;
+		}
+	}
+
+	public static WorkbookReference openBook ( String filePath, String bookName, boolean loadIfNotOpen ) {
+		boolean alreadyOpen = true;
+		Workbook wkb = null;
+
 		if ( "".equals ( bookName ) ) {
-			wkb = Application.ActiveWorkbook;
+			return new WorkbookReference ( Application.ActiveWorkbook, true );
 		} else {
-			wkb = null;
 			try {
 				String simpleName = bookName;
 				int slash = simpleName.lastIndexOf ( '\\' );
 				if ( slash >= 0 )
 					simpleName = simpleName.substring ( slash + 1 );
+	
 				wkb = Application.Workbooks ( simpleName + ".xlsx" );
 				if ( wkb == null ) {
 					wkb = Application.Workbooks ( simpleName + ".csv" );
 					if ( wkb == null ) {
 						wkb = Application.Workbooks ( simpleName + ".xlsm" );
-						if ( wkb == null ) {	
+						if ( wkb == null ) {
 							wkb = Application.Workbooks ( simpleName + ".xlam" );
-						if ( wkb == null && loadIfNotOpen ) {
-							wkb = Application.Workbooks ().Open ( filePath + "\\" + bookName + ".xlsx" );
-							if ( wkb == null ) {
-								wkb = Application.Workbooks ().Open ( filePath + "\\" + bookName + ".csv" );
+
+							if ( wkb == null && loadIfNotOpen ) {
+
+								int count = Application.Workbooks ().Count ();
+								Workbooks wkbs = Application.Workbooks ();
+
+								wkb = wkbs.Open ( filePath + "\\" + bookName + ".xlsx" );
 								if ( wkb == null ) {
-									wkb = Application.Workbooks ().Open ( filePath + "\\" + bookName + ".xlsm" );
+									wkb = wkbs.Open ( filePath + "\\" + bookName + ".csv" );
 									if ( wkb == null ) {
-										wkb = Application.Workbooks ().Open ( filePath + "\\" + bookName + ".xlam" );
-									}	
+										wkb = wkbs.Open ( filePath + "\\" + bookName + ".xlsm" );
+									}
+								}
+								
+								if ( wkb == null ) {
+									wkb = wkbs.Open ( filePath + "\\" + bookName + ".xlam" );
+									// don't close .xlam's, even if we open them
+									alreadyOpen = true;
+								}
+								else {
+									int newCount = Application.Workbooks ().Count ();
+									alreadyOpen = (newCount == count);
 								}
 							}
 						}
 					}
 				}
-			}
-			}catch ( Exception e ) {
+			} catch ( Exception e ) {
 				e.printStackTrace ();
 			}
 		}
-		return wkb;
+
+		return new WorkbookReference ( wkb, alreadyOpen );
 	}
 
 }

@@ -2,8 +2,14 @@
 ---Minor Enhancements---
 	Enabled use of metamodel format Display for types
 	Support attach and grouping with relationships (prior only with regular concepts)
+	extensions (e.g. domain languages) loaded from QuickRDA home folder are closed after use
+---Changes---
+	RDA Contextual and Conceptual models should include the following with an "i" build command
+		~\Extensions\RDA Language
+	NOTE: prior to 4.4.3 this file was automatically loaded; in 4.4.3 and 4.4.4 this file was called "MetaModel".
 ---Bug Fixes---
-	resupport metamodels ending with " DL".
+	resupport metamodels ending with " DL"
+	also support ending with "Language".
 	
 ===QuickRDA version 4.4.4=== 12/10/2012 dpenkler@gmail.com
 Bug Fix: dropdowns not generating for items in metamodel -> now reading metamodels with viz=true for DD
