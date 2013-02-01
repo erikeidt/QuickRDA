@@ -1441,15 +1441,30 @@ public class LanguageReasoner {
 	}
 
 	public static String escapeTextForHTMLCommon ( String s ) {
-		s = Strings.Replace ( s, '&', "&amp;" ); //   do first: before other &xxx; or &# or &x replacements
-		s = Strings.Replace ( s, '\"', "&quot;" );
-		s = Strings.Replace ( s, '\'', "&apos;" );
-		s = Strings.Replace ( s, '’', "&apos;" );
-		s = Strings.Replace ( s, '<', "&lt;" );
-		s = Strings.Replace ( s, '>', "&gt;" );
-		s = Strings.Replace ( s, '—', "&#8212;");
-		s = Strings.Replace ( s, '…', "&#8230;");
-		return s;
+		
+		
+		String res = ""; 
+	    char[] buf = s.toCharArray(); 
+		int charval;
+		for(int i=0;i<buf.length;i++) { 
+			switch (buf[i]) {
+			case '&':   res += "&amp;"; break; //   do first: before other &xxx; or &# or &x replacements
+			case '\"': res += "&quot;"; break;
+			case '\'': 
+			case '’':  res += "&apos;"; break;
+			case '<':  res += "&lt;";   break;
+			case '>':  res += "&gt;";   break;
+			default: {
+	    	charval = buf[i];
+	    	if (charval < 32) res += " "; // less than space is space" +
+	    	else if (charval > 127) res += "&#" + Integer.toString(charval) + ";";
+	    	else res += Character.toString (buf[i]);	
+	    	}
+			}
+		}
+		// System.out.println ("Input:  " + s );
+		// System.out.println ("Result: " + res );
+		return res;
 	}
 
 	public static String wrapText ( String sIn ) {
