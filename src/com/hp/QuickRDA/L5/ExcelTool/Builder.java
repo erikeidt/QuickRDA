@@ -604,7 +604,7 @@ public class Builder {
 								} else {
 									Worksheet wks = wkbRef.wkb.Worksheets ( sheetName );
 									if ( wks == null )
-										lang.errMsg ( "Worksheet not found: " + sheetName );
+										Start.AbEnd ( "Worksheet: " + sheetName + " not found in Workbook " + wkbRef.wkb.Name() + "\n\n" );
 									else
 										buildGraphFromWorkSheet ( wkbRef.wkb, wks, sheetName, highlightR, vis, columnExclusions );
 								}

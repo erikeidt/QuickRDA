@@ -79,6 +79,12 @@ public class Start {
 		gWorkOpenedWorkbooks.add ( wkbRef );
 	}
 
+	public static void AbEnd(String msg) {
+		lang.errMsg (msg);
+		release();
+		System.exit ( 1 ); 
+	}
+	
 	public static void release () {
 		for ( int i = 0; i < gWorkOpenedWorkbooks.size (); i++ ) {
 			WorkbookReference wkbRef = gWorkOpenedWorkbooks.get ( i );
@@ -225,9 +231,7 @@ public class Start {
 									alreadyOpen = true;
 								}
 								if (wkb == null) {
-									lang.errMsg ( "Cannot open " + bookName + "\n\n");
-									release();
-									System.exit ( 1 ); 
+									AbEnd("Cannot open Workbook: " + filePath + "\\" + bookName + "\n\n");
 								}
 								else {
 									int newCount = Application.Workbooks ().Count ();
