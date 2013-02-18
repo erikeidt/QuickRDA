@@ -93,6 +93,7 @@ public class SourceUnitReader {
 		boolean		hasNode;
 		PSOSet []	pso;
 		DMIElem		tm;
+		FChain		subscript;
 	}
 
 	private static class VALHolder {
@@ -140,6 +141,9 @@ public class SourceUnitReader {
 	// Formula cells as follows:
 	//   blank implies: generate node as if ":" were present
 	//   : directs node generation from cell value as name, using column type
+	//   "<<" begins definition of subscript formula
+	//   ">>" ends definition of subscript formula
+	//   "," separates items in a formula chain
 	//   ^ directs link generation from relation, subject, object taken as follows
 	//   "", i.e. blank means cell value taken as value
 	//   name, use this as constant as the value
@@ -147,15 +151,14 @@ public class SourceUnitReader {
 	//   "!", i.e. bang blank relation has no meaning
 	//	 "!+" use all entities and relationships from the named column
 	//	 "!-" use only relationships from the named column
-	//   !PreferedColumnName>AlternateColumnName...
-	// TODO <<Reference[.Reference]*>>
-	//    Reference = [Term
-
+	//   ">" Selection of alternate columns if previous is blank !PreferedColumnName>AlternateColumnName...
+	
 
 	private PSOHolder buildPSOFromColumn ( TableReader hdrTab, int c, List<String> columnExclusions ) {
 		boolean hasNode = false;
 
 		PSOSet [] pso = new PSOSet [ 0 ];
+		PSOHolder psoL = new PSOHolder ();
 		DMIElem tm = null;
 
 		String t = columnTypeValue ( hdrTab, c );
@@ -176,6 +179,12 @@ public class SourceUnitReader {
 			if ( Strings.initialMatch ( f, xx, ":" ) ) {
 				f = xx.str;
 				hasNode = true;
+
+				if ( Strings.initialMatch ( f, xx, "<<" ) ) {
+					f = xx.str;
+					psoL.subscript = parseLinkSubscript ( hdrTab, f, xx, c, true );
+					f = xx.str;
+				}
 			}
 
 			//Check to see if making edge
@@ -186,7 +195,6 @@ public class SourceUnitReader {
 			}
 		}
 
-		PSOHolder psoL = new PSOHolder ();
 
 		psoL.hasNode = hasNode;
 		psoL.pso = pso;
@@ -292,6 +300,9 @@ public class SourceUnitReader {
 		//skip blank cells; can't think of a reason not to
 		if ( !"".equals ( n ) ) {
 
+
+			n += getSubscript ( c, tblTab );
+			
 			if ( hasNode ) {
 				if ( exactLiteral ) {
 					DMIElem nd = itsConceptMgr.enterTypedConcept ( n, tm, true );
@@ -702,7 +713,51 @@ public class SourceUnitReader {
 		xx.str = f;
 		return ifc;
 	}
+	
+	private FChain parseLinkSubscript ( TableReader hdrTab, String f, StringRef xx, int c, boolean isProperty ) {
+		FChain ifc = new FChain ();
+		FChain fc = ifc;
+		
+		String s = Strings.splitAfter ( f, xx, ">>" );
+		f = xx.str;
+		if ( "".equals ( s ) ) {
+			errMsg ( false, hdrTab, c, false, s, "Missing '>>' in subscript expression." );
+		}
+		while ( !"".equals ( s ) ) {
+			fc.chain = parseLinkUnit ( hdrTab, s, xx, c, isProperty );
+			s = xx.str;
+			fc = fc.chain;
+		}
 
+		xx.str = f;
+		return ifc;
+	}
+
+	private String getSubscript ( int c, TableReader tblTab ) {
+		if ( itsPSOL [ c ].subscript == null ) {
+			return new String();
+		}
+		
+		FChain s = itsPSOL [ c ].subscript.chain;
+		String v = new String();
+		if ( s != null ) {
+			 v += " " + "<<";
+			 do {
+				 if ( s.opType == ColumnRelationExpressionEnum.ColumnReference ) {
+					 v += tblTab.GetValue ( s.colIndex );
+				 } else {
+					 v += s.nameStr;
+				 }
+				 s = s.chain;
+				 if ( s != null ) {
+					 v += ".";
+				 }
+			 } while ( s != null );
+			 v += ">>";
+		}
+		return v;
+	}
+	
 	private void enterColumnAttribute ( DMIElem m, String attr, String val, TableReader tblTab, int c ) {
 		DMIElementDiagrammingInfo di;
 		di = m.itsDiagrammingInfo;

@@ -148,7 +148,7 @@ public class Strings {
 
 	public static boolean initialMatch ( String x, StringRef xx, String k ) {
 		if ( InStr ( 1, x, k ) == 1 ) {
-			xx.str = Mid ( x, 2 );
+			xx.str = Mid ( x, k.length() + 1 );
 			return true;
 		}
 		return false;

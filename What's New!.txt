@@ -1,9 +1,12 @@
+===QuickRDA version 4.4.7=== 02/15/2013 steve.marney@hp.com
+---Minor Enhancements---
+	Added automated node subscripting grammar to RDA's meta-language
+	
 ===QuickRDA version 4.4.6=== 02/02/2012 dpenkler@gmail.com
 -- Minor Enhancements---
 	Added error message and exit for failed open on workbook
 	Added error message and exit for missing worksheet
 	More complete HTML escaping for SVG generation
-	
 ---Changes---
 	Pulled changes from Steve Marney from 26 November 2012:
 		XMLHelper.java, XMLGenerator.java: Refactored to ouptu DMIElem nodes with name and id as attributes 

@@ -587,7 +587,9 @@ public class Builder {
 							wkbName = wkbName.substring ( 1 );
 					}
 
-					if ( wkbName.endsWith ( ".dmi" ) ) {
+					if (wkbName.startsWith ( "\\" )) ;
+						// Accept \ as comment
+					else if ( wkbName.endsWith ( ".dmi" ) ) {
 						buildGraphFromDMIFile ( path, wkbName, !vis );
 					} else {
 						if ( !"".equals ( wkbName ) || !"".equals ( sheetName ) ) {
