@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 package com.hp.QuickRDA.L4.Build.XML;
 
+import java.util.List;
 import com.hp.QuickRDA.L1.Core.DMIElem;
 import com.hp.QuickRDA.L2.Names.NameUtilities;
 import com.hp.QuickRDA.L5.ExcelTool.Builder;
@@ -37,21 +38,21 @@ public class XMLHelper {
 	public static final String XML_HEADER = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
 
 	// XML tags for DMI elements
-	public static final String ID_TAG = "Id";
-	public static final String NAME_TAG = "Name";
-	public static final String MAP_TAG = "Map";
-	public static final String KEY_TAG = "Key";
-	public static final String VALUE_TAG = "Value";
+	public static final String ID_TAG = "id";
+	public static final String NAME_TAG = "name";
 
 	// XML indentation related variables
 	public static final String INDENTATION = "  ";
 	private int level;
 	
+	private Builder bldr;
+	
 	
 	/**
 	 * Default constructor.
 	 */
-	public XMLHelper() {
+	public XMLHelper(Builder bldr) {
+		this.bldr = bldr;
 		resetLevel();
 	}
 
@@ -89,36 +90,67 @@ public class XMLHelper {
 		}
 		return ind + str;
 	}
-
+	
 	/**
-	 * Formats, creates and indents an XML element's "begin" tag as appropriate.
+	 * Creates and indents an XML element's "begin" tag and attributes
+	 * as appropriate.
 	 * 
 	 * @param  tag the tag name
+	 * @param  attrs list of attribute name/value pairs
+	 * @param  close if {@code true}, close with "/>" instead of ">"
 	 * @param  indent if {@code true}, indent the XML tag
 	 * @return XML "begin" tag
 	 */
-	public String beginTag(String tag, boolean indent) {
-		String str = "<" + formatTag(tag) + ">";
+	public String beginTag(String tag, List<String> attrs, boolean close, boolean indent) {
+		String str = "<" + formatTag(tag) + attributes(attrs) + (close ? "/>" : ">");
 		if (indent) {
 			str = indent(str);
-			indent();
+			if (!close) {
+				indent();
+			}
+		}
+		return str;
+	}
+
+	/**
+	 * Creates and indents an XML element's "begin" tag and attributes
+	 * as appropriate.
+	 * 
+	 * @param  tag the tag name
+	 * @param  attrs if not {@code null}, DMI element metadata are included as attributes
+	 * @param  close if {@code true}, close with "/>" instead of ">"
+	 * @param  indent if {@code true}, indent the XML tag
+	 * @return XML "begin" tag
+	 * @see    #attributes(DMIElem)
+	 */
+	public String beginTag(String tag, DMIElem attrs, boolean close, boolean indent) {
+		String str = "<" + formatTag(tag) + attributes(attrs) + (close ? "/>" : ">");
+		if (indent) {
+			str = indent(str);
+			if (!close) {
+				indent();
+			}
 		}
 		return str;
 	}
 	
 	/**
-	 * Formats, creates and indents an XML element's "begin" tag as appropriate.
+	 * Creates and indents an XML element's "begin" tag and attributes
+	 * as appropriate.
 	 * 
 	 * @param  m the DMI element whose name will be used for the tag
+	 * @param  attrs if not {@code null}, DMI element metadata are included as attributes
+	 * @param  close if {@code true}, close with "/>" instead of ">"
 	 * @param  indent if {@code true}, indent the XML tag
 	 * @return XML "begin" tag
+	 * @see    #attributes(DMIElem)
 	 */
-	public String beginTag(DMIElem m, boolean indent) {
-		return beginTag(getTag(m), indent);
+	public String beginTag(DMIElem m, DMIElem attrs, boolean close, boolean indent) {
+		return beginTag(getTag(m), attrs, close, indent);
 	}
 	
 	/**
-	 * Formats, creates and indents an XML element's "end" tag as appropriate.
+	 * Creates and indents an XML element's "end" tag as appropriate.
 	 * 
 	 * @param  tag the tag name
 	 * @param  indent if {@code true}, indent the XML tag
@@ -134,7 +166,7 @@ public class XMLHelper {
 	}
 	
 	/**
-	 * Formats, creates and indents an XML element's "end" tag as appropriate.
+	 * Creates and indents an XML element's "end" tag as appropriate.
 	 * 
 	 * @param  m the DMI element whose name will be used for the tag
 	 * @param  indent if {@code true}, indent the XML tag
@@ -151,47 +183,74 @@ public class XMLHelper {
 	 * @return tag name
 	 */
 	public String getTag(DMIElem m) {
-		DMIElem type = m.itsDeclaredTypeList.get(m.itsDeclaredTypeList.size() - 1);
-		String tag = NameUtilities.firstName(type, m.itsSubgraph.itsGraph, true, true);
-		tag = tag.replaceAll("\\<.*", "");	// keep everything before the first occurence of "<"
+		String tag = new String();
+		DMIElem type = m.itsDeclaredTypeList.get(0);
+		tag = NameUtilities.firstName(type, m.itsSubgraph.itsGraph, true, false);
+		tag = tag.replaceAll("\\<.*", "");	// keep everything before the first "<"
 		return tag;
 	}
 	
 	/**
-	 * Formats a tag name to ensure it is syntactically valid.
+	 * Formats {@code attrs} into a list of {@code name="value"} pairs,
+	 * separated by spaces.
 	 * 
-	 * @param  tag tag to be formatted
-	 * @return formatted tag
+	 * @param  attrs list of formatted attribute {@code name="value"} pairs
+	 * @return formatted attribute list
+	 * @see    #attribute(String, String)
 	 */
-	public String formatTag(String tag) {
-		String t = tag.replaceAll("-", "");
-		t = t.replaceAll(" ", "");
-		t = t.replaceAll("\\(", "_");
-		t = t.replaceAll("\\)", "");
-		t = t.replaceAll("\\.\\.", "_");	// convert occurrences of ".." to "_"
-		t = t.replaceAll("\\.", "");		// remove remaining occurrences of "."
-		return t;
+	public String attributes(List<String> attrs) {
+		String str = new String();
+		if (attrs != null) {
+			for (String attr : attrs) {
+				str += attr;
+			}
+		}
+		return str;
+	}
+	
+	/**
+	 * Creates a string containing XML element attributes that identify the DMI
+	 * element {@code m} by name and id.
+	 * 
+	 * @param  m DMI element whose name and index are formatted as XML element attributes
+	 * @return formatted {@code name} and {@code id} attributes
+	 * @see    #attribute(String, String)
+	 */
+	public String attributes(DMIElem m) {
+		String str = new String();
+		if (m != null) {
+			str += attribute(NAME_TAG, NameUtilities.firstName(m, bldr.itsGraph, true, true));
+			str += attribute(ID_TAG, String.valueOf(m.itsIndex));
+		}
+		return str;
+	}
+	
+	/**
+	 * Creates a name/value pair representing an XML element attribute.
+	 * 
+	 * @param  name attribute name
+	 * @param  value attribute value
+	 * @return {@code name="value"} preceded by a space character
+	 */
+	public String attribute(String name, String value) {
+		return " " + formatTag(name) + "=\"" + format(value) + "\"";
 	}
 	
 	/**
 	 * Creates an XML element with its value/subtree bracketed by begin and end tags.
 	 * 
 	 * @param  tag the tag name
+	 * @param  attrs if not {@code null}, DMI element metadata are included as attributes
 	 * @param  value the XML element value/subtree
 	 * @param  indent if {@code true}, indent the XML element
 	 * @return XML element
 	 */
-	public String element(String tag, String value, boolean indent) {
-		String xml = new String();
-		if (!expandable(value)) {
-			xml = beginTag(tag, false) + value + endTag(tag, false);
-		}
-		else {
-			String name = (value.substring(0, value.indexOf("["))).trim();
-			xml = element(tag, name, false) + expand(value);
-		}
-		if (indent) {
-			xml = indent(xml);
+	public String element(String tag, DMIElem attrs, String value, boolean indent) {
+		String xml;
+		if (value == null) {
+			xml = beginTag(tag, attrs, true, indent);
+		} else {
+			xml = beginTag(tag, attrs, false, indent) + value + endTag(tag, false);
 		}
 		return xml;
 	}
@@ -200,16 +259,13 @@ public class XMLHelper {
 	 * Creates an XML element with its integer value bracketed by begin and end tags.
 	 * 
 	 * @param  tag the tag name
+	 * @param  attrs if not {@code null}, DMI element metadata are included as attributes
 	 * @param  value the XML element value
 	 * @param  indent if {@code true}, indent the XML element
 	 * @return XML element
 	 */
-	public String element(String tag, int value, boolean indent) {
-		String xml = beginTag(tag, false) + value + endTag(tag, false);
-		if (indent) {
-			xml = indent(xml);
-		}
-		return xml;
+	public String element(String tag, DMIElem attrs, int value, boolean indent) {
+		return element(tag, attrs, String.valueOf(value), indent);
 	}
 	
 	/**
@@ -219,7 +275,7 @@ public class XMLHelper {
 	 * @return XML comment string
 	 */
 	public String comment(String value) {
-		return indent("<!-- " + format(value) + " -->");
+		return indent("<!-- " + value + " -->");
 	}
 	
 	/**
@@ -241,28 +297,8 @@ public class XMLHelper {
 	}
 	
 	/**
-	 * Creates a string that contains formatted {@code <Name>} and {@code <Id>}
-	 * XML elements for the specified DMI element.
-	 * 
-	 * @param  bldr DMI builder
-	 * @param  m DMI element whose Name and Id are to be rendered into XML elements
-	 * @param  indent if {@code true}, indent the identifier string
-	 * @return identifier formatted as XML
-	 */
-	public String identifier(Builder bldr, DMIElem m, boolean indent) {
-		String xml = new String();
-		xml += element(NAME_TAG, format(NameUtilities.firstName(m, bldr.itsGraph, true, true)), false);
-		xml += element(ID_TAG, m.itsIndex, false);
-		if (indent) {
-			xml = indent(xml);
-		}
-		return xml;
-	}
-	
-	/**
-	 * Formats special characters in the specified string for XML. Chevrons
-	 * ("<<" and ">>") are removed and special characters '&', '<', and '>' 
-	 * are escaped as necessary.
+	 * Formats special characters in the specified string for XML. Special characters 
+	 * '&', '<', '>', single quote ('), and double quote (") are escaped as necessary.
 	 * 
 	 * @param  str string to be formatted for XML
 	 * @return formatted string
@@ -272,60 +308,27 @@ public class XMLHelper {
 		if (!xml.contains("&amp;")) {
 			xml = xml.replaceAll("&", "&amp;");
 		}
-		xml = xml.replaceAll("<<", "");
-		xml = xml.replaceAll(">>", "");
 		xml = xml.replaceAll("<", "&lt;");
 		xml = xml.replaceAll(">", "&gt;");
+		xml = xml.replaceAll("'", "&apos;");
+		xml = xml.replaceAll("\"", "&quot;");
 		return xml;
 	}
 	
 	/**
-	 * Determines if the specified string is expandable to an XML tree structure.
+	 * Formats a tag name to ensure it is syntactically valid.
 	 * 
-	 * @param  str
-	 * @return true if {@code str} contains '[' and ']' characters
+	 * @param  tag tag to be formatted
+	 * @return formatted tag
 	 */
-	public boolean expandable(String str) {
-		return (str.contains("[") && str.contains("]"));
-	}
-	
-	/**
-	 * Expands the specified string into a list of XML nodes named {@code Map}, each of
-	 * which has child nodes named {@code Key} and {@code Value}.
-	 * 
-	 * @param  str string whose format is {@code "[ key1 : value1 , key2 : value2 , ... ]"}
-	 * @return {@code str} expanded to a list of XML nodes
-	 * 
-	 * @see    #expandPairs(String[])
-	 */
-	public String expand(String str) {
-		String xml = str;
-		if (xml.contains("[")) {
-			xml = xml.substring(xml.indexOf("[")+1, xml.indexOf("]")-1).trim();
-			String[] pairs = xml.split(",");
-			xml = expandPairs(pairs);
-		}
-		return xml;
-	}
-	
-	/**
-	 * Expands the specified list of key/value pairs into a list of XML nodes 
-	 * named Map, each of which has child nodes named Key and Value.
-	 * 
-	 * @param  pairs a list of strings, each of which has the format {@code "key : value"}
-	 * @return concatenated list of strings, each of which has the format  
-	 *         {@code "<Map><Key>key</Key><Value>value</Value></Map>"}
-	 */
-	public String expandPairs(String[] pairs) {
-		String xml = new String();
-		for (int i=0; i < pairs.length; i++) {
-			int colon = pairs[i].indexOf(":");
-			if (colon > 0) {
-				String key = element(KEY_TAG, pairs[i].substring(0,colon).trim(), false);
-				String value = element(VALUE_TAG, pairs[i].substring(colon+1).trim(), false);
-				xml += element(MAP_TAG, key + value, false);
-			}
-		}
-		return xml;
+	public String formatTag(String tag) {
+		String t = tag.replaceAll("-", "");
+		t = t.replaceAll(" ", "");
+		t = t.replaceAll("\\(", "_");
+		t = t.replaceAll("\\)", "");
+		t = t.replaceAll("\\.\\.", "_");	// convert occurrences of ".." to "_"
+		t = t.replaceAll("\\.", "");		// remove remaining occurrences of "."
+		t = t.replaceAll("\\<.*", "");		// keep everything before the first "<"
+		return t;
 	}
 }

@@ -147,7 +147,9 @@ public class SourceUnitReader {
 	//   "!", i.e. bang blank relation has no meaning
 	//	 "!+" use all entities and relationships from the named column
 	//	 "!-" use only relationships from the named column
-	//
+	//   !PreferedColumnName>AlternateColumnName...
+	// TODO <<Reference[.Reference]*>>
+	//    Reference = [Term
 
 
 	private PSOHolder buildPSOFromColumn ( TableReader hdrTab, int c, List<String> columnExclusions ) {
