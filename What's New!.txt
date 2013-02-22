@@ -1,3 +1,8 @@
+===QuickRDA version 4.4.7alpha=== 02/22/2013 dpenkler@gmail.com
+---Bug Fixes---
+    Autoclose causing crash on dropdown generation with tabs from install dir
+    Disabled checking of literals in subscript generation rules exist in the metamodel
+    
 ===QuickRDA version 4.4.7=== 02/15/2013 steve.marney@hp.com
 ---Minor Enhancements---
 	Added automated node subscripting grammar to RDA's meta-language

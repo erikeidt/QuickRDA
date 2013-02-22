@@ -32,7 +32,7 @@ import com.hp.QuickRDA.L4.Build.*;
 
 public class Start {
 
-	private static String		jVers		= "4.4.7";		// QuickRDA.jar & installation version
+	private static String		jVers		= "4.4.7alpha";		// QuickRDA.jar & installation version
 	private static String		xptXLVers	= "4.4.5";		// The expected Excel Add-in version
 
 	// private static DecimalFormat	vFormat		= new DecimalFormat ("#.##");

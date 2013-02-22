@@ -610,7 +610,7 @@ public class Builder {
 									else
 										buildGraphFromWorkSheet ( wkbRef.wkb, wks, sheetName, highlightR, vis, columnExclusions );
 								}
-								if ( closeWhenDone ) {
+								if ( closeWhenDone && !dropdowns ) { // dropdowns are still going to visit all tabs referenced in build
 									wkbRef.wasAlreadyOpen = false;
 									wkbRef.wkb.Close ( false, null, false );
 									wkbRef.wkb = null;

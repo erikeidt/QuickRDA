@@ -136,6 +136,11 @@ public class SourceUnitReader {
 			itsPSOL = addToList ( buildPSOFromColumn ( hdrTab, c, columnExclusions ), itsPSOL );
 	}
 
+	private enum EntityTypeEnum {
+		Property,
+		Concept,
+		Literal
+	}
 
 	//
 	// Formula cells as follows:
@@ -152,7 +157,8 @@ public class SourceUnitReader {
 	//	 "!+" use all entities and relationships from the named column
 	//	 "!-" use only relationships from the named column
 	//   ">" Selection of alternate columns if previous is blank !PreferedColumnName>AlternateColumnName...
-	
+	//    TODO Executive decision: ColumnNme = [A-Za-z][A-Za-z0-9_ ]+
+	//    TODO Backslash escape mechanism !Column3\Fred
 
 	private PSOHolder buildPSOFromColumn ( TableReader hdrTab, int c, List<String> columnExclusions ) {
 		boolean hasNode = false;
@@ -182,9 +188,13 @@ public class SourceUnitReader {
 
 				if ( Strings.initialMatch ( f, xx, "<<" ) ) {
 					f = xx.str;
-					psoL.subscript = parseLinkSubscript ( hdrTab, f, xx, c, true );
+					psoL.subscript = parseLinkSubscript ( hdrTab, f, xx, c, true, ">>" );
 					f = xx.str;
-				}
+				} else if ( Strings.initialMatch ( f, xx, "(" ) ) {
+					f = xx.str;
+					psoL.subscript = parseLinkSubscript ( hdrTab, f, xx, c, true, ")" );
+					f = xx.str;
+				} 
 			}
 
 			//Check to see if making edge
@@ -602,17 +612,17 @@ public class SourceUnitReader {
 			pso.hidden = true;
 		}
 
-		pso.p = parseLinkUnit ( hdrTab, f, xx, c, true );
+		pso.p = parseLinkUnit ( hdrTab, f, xx, c, EntityTypeEnum.Property );
 		f = xx.str;
-		pso.s = parseLinkUnit ( hdrTab, f, xx, c, false );
+		pso.s = parseLinkUnit ( hdrTab, f, xx, c, EntityTypeEnum.Concept );
 		f = xx.str;
-		pso.o = parseLinkUnit ( hdrTab, f, xx, c, false );
+		pso.o = parseLinkUnit ( hdrTab, f, xx, c, EntityTypeEnum.Concept );
 		f = xx.str;
 		return pso;
 	}
 
 	//Updates to parameter f
-	private FChain parseLinkUnit ( TableReader hdrTab, String f, StringRef xx, int c, boolean isProperty ) {
+	private FChain parseLinkUnit ( TableReader hdrTab, String f, StringRef xx, int c, EntityTypeEnum et ) {
 		FChain ifc = new FChain ();
 		FChain fc = ifc;
 
@@ -665,7 +675,7 @@ public class SourceUnitReader {
 			v = xx.str;
 			fc.opType = ColumnRelationExpressionEnum.AttributeName;
 			fc.nameStr = v;
-		} else if ( "".equals ( v ) && !isProperty ) {
+		} else if ( "".equals ( v ) && !et.equals ( EntityTypeEnum.Property ) ) {
 			fc.opType = ColumnRelationExpressionEnum.ColumnReference;
 			fc.nameStr = "";
 			fc.colIndex = c;
@@ -674,7 +684,7 @@ public class SourceUnitReader {
 			fc.opType = ColumnRelationExpressionEnum.ConstantString;
 			fc.nameStr = v;
 			if ( !"".equals ( v ) ) {
-				if ( isProperty ) {
+				if ( et.equals ( EntityTypeEnum.Property ) ) {
 					DMIElem m = itsConceptMgr.findConcept ( v, null );
 					if ( m == null ) {
 						errMsg ( false, hdrTab, c, false, v, "No relationship of that name is in the currently loaded metamodel(s)." );
@@ -686,7 +696,7 @@ public class SourceUnitReader {
 									"\r\n  Warning:\tNo relationship of that name is in the currently loaded metamodel(s).\r\n");
 						*/
 					}
-				} else {
+				} else if ( et.equals ( EntityTypeEnum.Concept ))  {
 					DMIElem m = itsConceptMgr.findConcept ( v, itsBaseVocab.gboolean );
 
 					// duplicated code... yuk!
@@ -714,17 +724,17 @@ public class SourceUnitReader {
 		return ifc;
 	}
 	
-	private FChain parseLinkSubscript ( TableReader hdrTab, String f, StringRef xx, int c, boolean isProperty ) {
+	private FChain parseLinkSubscript ( TableReader hdrTab, String f, StringRef xx, int c, boolean isProperty, String endMatch ) {
 		FChain ifc = new FChain ();
 		FChain fc = ifc;
 		
-		String s = Strings.splitAfter ( f, xx, ">>" );
+		String s = Strings.splitAfter ( f, xx, endMatch );
 		f = xx.str;
 		if ( "".equals ( s ) ) {
-			errMsg ( false, hdrTab, c, false, s, "Missing '>>' in subscript expression." );
+			errMsg ( false, hdrTab, c, false, s, "Missing '" + endMatch + "' in subscript expression." );
 		}
 		while ( !"".equals ( s ) ) {
-			fc.chain = parseLinkUnit ( hdrTab, s, xx, c, isProperty );
+			fc.chain = parseLinkUnit ( hdrTab, s, xx, c, EntityTypeEnum.Literal );
 			s = xx.str;
 			fc = fc.chain;
 		}
