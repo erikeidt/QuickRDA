@@ -129,6 +129,7 @@ public class TableReader {
 		return GetValue ( c );
 	}
 
+	
 	// One-based row index, r
 	public void SetRow ( int r ) {
 		assert r >= 1 && r <= itsLastRow : "Table.GetValue row out of bounds";

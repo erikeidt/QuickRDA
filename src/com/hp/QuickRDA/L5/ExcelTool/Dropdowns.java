@@ -21,7 +21,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 package com.hp.QuickRDA.L5.ExcelTool;
 
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 
 import com.hp.JEB.*;
 import com.hp.QuickRDA.Excel.*;
@@ -91,52 +94,88 @@ public class Dropdowns {
 
 	private void generateDropdownsForTable ( Worksheet wks, Range hdrR, boolean inclDomainModelItems, boolean inclUnderlyingMetaModelItems, Builder bldr, DMIView dmvw ) {
 		TableReader headerTab = new TableReader ( hdrR, SourceUnitReader.kTableToFirstRowOffset, TableReader.FirstAllRestVisibleByFirst | TableReader.TrackRows );
+		TableReader bodyTab = new TableReader ( SourceUnitReader.kTableToFirstRowOffset + 1, hdrR, TableReader.VisibleCellsOnly );
 		int cxc = hdrR.Columns ().Count ();
+		Start.checkForShutDown ();
 		for ( int cx = 1; cx <= cxc; cx++ )
-			generateDropdownsForColumn ( wks, headerTab, cx, inclDomainModelItems, inclUnderlyingMetaModelItems, bldr, dmvw );
+			generateDropdownsForColumn ( wks, headerTab, bodyTab, cx, inclDomainModelItems, inclUnderlyingMetaModelItems, bldr, dmvw );
 	}
 
-	private void generateDropdownsForColumn ( Worksheet wks, TableReader headerTab, int c, boolean inclDomainModelItems, boolean inclUnderlyingMetaModelItems, Builder bldr, DMIView dmvw ) {
+	private void generateDropdownsForColumn ( Worksheet wks, TableReader headerTab, TableReader bodyTab, int c, boolean inclDomainModelItems, boolean inclUnderlyingMetaModelItems, Builder bldr, DMIView dmvw ) {
 		String t = SourceUnitReader.columnTypeValue ( headerTab, c );
+		DropDownSource ddSrc;
+		int ddSourceIndex = -1;
+		
+		if ( "".equals ( t ) ) return; //don't handle typeless columns in this format; skip whole column
 
-		//don't handle typeless columns in this format; skip whole column
-		if ( "".equals ( t ) )
-			return;
+		if (!SourceUnitReader.hasSubscriptNodeFormula(headerTab, c )) { // get source from model
+			//Set te = bldr.conceptMgr.FindConcept(t, bldr.baseVocab.gConcept)
+			DMIElem te = TypeExpressions.getTypeFromNameExpression ( t, bldr.itsConceptMgr, bldr.itsBaseVocab );
+			if ( te == null ) return; // nothing in model
 
-		//Set te = bldr.conceptMgr.FindConcept(t, bldr.baseVocab.gConcept)
-		DMIElem te = TypeExpressions.getTypeFromNameExpression ( t, bldr.itsConceptMgr, bldr.itsBaseVocab );
-
-		if ( te != null ) {
-			int ddSourceIndex = -1;
 			if ( ddValidationSources != null )
 				ddSourceIndex = findInList ( NameUtilities.getMCText ( te ), ddValidationSources );
-			if ( ddSourceIndex < 0 ) {
-				DropDownSource ddSrc = setupDDSource ( te, inclDomainModelItems, inclUnderlyingMetaModelItems, bldr, dmvw );
-				if ( ddSrc != null ) {
-					if ( ddValidationSources == null )
-						ddValidationSources = new XSetList<DropDownSource> ();
-					ddSourceIndex = ddValidationSources.size ();
-					ddValidationSources.add ( ddSrc );
-					// dds.col = u;
-				}
-			}
+			if ( ddSourceIndex < 0 ) // build new source
+				ddSrc = setupDDSourceFromModel ( te, inclDomainModelItems, inclUnderlyingMetaModelItems, bldr, dmvw );
 
-			if ( ddSourceIndex >= 0 && ddValidationSources.get ( ddSourceIndex ).values.length > 0 ) {
-				// no need to capture targets whose sources are zero length
-				if ( ddValidationTargets == null )
-					ddValidationTargets = new XSetList<DropDownTarget> ();
+		} else { // no ':' node in formula so just use user entered cell contents in column for DD source
+			ddSrc = setupDDSourceFromColumn(t, bodyTab,c);
+			ddSourceIndex = captureSource(ddSrc);
+		}
+		captureTarget(headerTab,  c, ddSourceIndex);
+	}
 
-				DropDownTarget ddTrg = new DropDownTarget ();
-				ddTrg.targetRange = headerTab.itsRange;
-				ddTrg.targetColNum = c;
-				ddTrg.sourceIndex = ddSourceIndex;
+	private  int captureSource(DropDownSource ddSrc) {
+		int ddsi = -1;
+		if (ddSrc != null) {
+			if ( ddValidationSources == null )
+				ddValidationSources = new XSetList<DropDownSource> ();
 
-				ddValidationTargets.add ( ddTrg );
-			}
+			ddsi = ddValidationSources.size (); // zero based index
+			ddValidationSources.add ( ddSrc );
+		}
+		return ddsi;
+	}
+
+	private  void captureTarget(TableReader headerTab, int c, int ddSrcIndex) {
+		if ( ddSrcIndex >= 0 && ddValidationSources.get ( ddSrcIndex ).values.length > 0 ) {
+			// no need to capture targets whose sources are zero length
+			if ( ddValidationTargets == null )
+				ddValidationTargets = new XSetList<DropDownTarget> ();
+
+			DropDownTarget ddTrg = new DropDownTarget ();
+			ddTrg.targetRange = headerTab.itsRange;
+			ddTrg.targetColNum = c;
+			ddTrg.sourceIndex = ddSrcIndex;
+
+			ddValidationTargets.add ( ddTrg );
 		}
 	}
 
-	private static DropDownSource setupDDSource ( DMIElem tm, boolean inclDomainModelItems, boolean inclUnderlyingMetaModelItems, Builder bldr, DMIView dmvw ) {
+	private DropDownSource setupDDSourceFromColumn(String t, TableReader headerTab, int c) {
+		List<String> inColDD = new LinkedList<String>();	
+		int rl = headerTab.RowLast ();
+		DropDownSource dds = null;
+
+		for ( int r = 1; r <= rl; r++ ) {
+			String cval = headerTab.GetValue ( r, c );
+			if (!"".equals ( cval ) && !inColDD.contains(cval)) inColDD.add ( cval )  ;
+		}
+		if (inColDD.size() > 0) { // if not don't bother
+			Collections.sort ( inColDD );  // sort in lexicographic order
+			dds = new DropDownSource();
+			dds.name = t;
+			dds.values = new String[inColDD.size ()];
+			ListIterator<String> lit = inColDD.listIterator(); 
+			// Java does not allow multiple local variable declarations in for() so lit has excessive scope
+			for (int i=0; lit.hasNext(); i++) {
+				dds.values[i] = lit.next();
+			}
+		}
+		return dds;
+	}	
+
+	private DropDownSource setupDDSourceFromModel(DMIElem tm, boolean inclDomainModelItems, boolean inclUnderlyingMetaModelItems, Builder bldr, DMIView dmvw) {
 		ISet<DMIElem> mV = null;
 
 		if ( tm.instanceOf ( bldr.itsBaseVocab.gProperty ) ) {

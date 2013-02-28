@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 package com.hp.QuickRDA.L5.ExcelTool;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.hp.JEB.*;
@@ -89,11 +90,21 @@ public class SourceUnitReader {
 		FChain			o;
 	}
 
+	private static class SubscriptHolder {
+		FChain		  subscript;
+		String        prefix;
+		String        suffix;
+		public SubscriptHolder(FChain subs, String pref, String suf) {
+			this.subscript = subs;
+			this.prefix    = pref;
+			this.suffix    = suf;
+		}
+	}
 	private static class PSOHolder {
-		boolean		hasNode;
-		PSOSet []	pso;
-		DMIElem		tm;
-		FChain		subscript;
+		boolean		  hasNode;
+		PSOSet []	  pso;
+		DMIElem		  tm;
+		List<SubscriptHolder>  subscriptChain;
 	}
 
 	private static class VALHolder {
@@ -157,7 +168,7 @@ public class SourceUnitReader {
 	//	 "!+" use all entities and relationships from the named column
 	//	 "!-" use only relationships from the named column
 	//   ">" Selection of alternate columns if previous is blank !PreferedColumnName>AlternateColumnName...
-	//    TODO Executive decision: ColumnNme = [A-Za-z][A-Za-z0-9_ ]+
+	//    TODO Executive decision: ColumnName = [A-Za-z][A-Za-z0-9_/ ]+
 	//    TODO Backslash escape mechanism !Column3\Fred
 
 	private PSOHolder buildPSOFromColumn ( TableReader hdrTab, int c, List<String> columnExclusions ) {
@@ -165,6 +176,7 @@ public class SourceUnitReader {
 
 		PSOSet [] pso = new PSOSet [ 0 ];
 		PSOHolder psoL = new PSOHolder ();
+		psoL.subscriptChain = new ArrayList<SubscriptHolder>();
 		DMIElem tm = null;
 
 		String t = columnTypeValue ( hdrTab, c );
@@ -186,15 +198,20 @@ public class SourceUnitReader {
 				f = xx.str;
 				hasNode = true;
 
-				if ( Strings.initialMatch ( f, xx, "<<" ) ) {
-					f = xx.str;
-					psoL.subscript = parseLinkSubscript ( hdrTab, f, xx, c, true, ">>" );
-					f = xx.str;
-				} else if ( Strings.initialMatch ( f, xx, "(" ) ) {
-					f = xx.str;
-					psoL.subscript = parseLinkSubscript ( hdrTab, f, xx, c, true, ")" );
-					f = xx.str;
-				} 
+				Boolean done = false;
+				do {
+					if ( Strings.initialMatch ( f, xx, "<<" ) ) {
+						f = xx.str;
+						psoL.subscriptChain.add (new SubscriptHolder( parseLinkSubscript ( hdrTab, f, xx, c, true, ">>" ),"<<",">>"));
+						f = xx.str;
+					} else if ( Strings.initialMatch ( f, xx, "(" ) ) {
+						f = xx.str;
+						psoL.subscriptChain.add (new SubscriptHolder( parseLinkSubscript ( hdrTab, f, xx, c, true, ")" ),"(",")"));
+						f = xx.str;
+					} else {
+						done = true;
+					}
+				} while ( !done );
 			}
 
 			//Check to see if making edge
@@ -209,7 +226,6 @@ public class SourceUnitReader {
 		psoL.hasNode = hasNode;
 		psoL.pso = pso;
 		psoL.tm = tm;
-
 		return psoL;
 	}
 
@@ -744,28 +760,35 @@ public class SourceUnitReader {
 	}
 
 	private String getSubscript ( int c, TableReader tblTab ) {
-		if ( itsPSOL [ c ].subscript == null ) {
-			return new String();
-		}
-		
-		FChain s = itsPSOL [ c ].subscript.chain;
+		PSOHolder psh = itsPSOL [ c ];
 		String v = new String();
-		if ( s != null ) {
-			 v += " " + "<<";
-			 do {
-				 if ( s.opType == ColumnRelationExpressionEnum.ColumnReference ) {
-					 v += tblTab.GetValue ( s.colIndex );
-				 } else {
-					 v += s.nameStr;
-				 }
-				 s = s.chain;
-				 if ( s != null ) {
-					 v += ".";
-				 }
-			 } while ( s != null );
-			 v += ">>";
+
+		for (Integer i=0; i<psh.subscriptChain.size(); i++ ) {
+			SubscriptHolder sh = psh.subscriptChain.get(i);
+			FChain s = sh.subscript.chain;
+			if ( s != null ) {
+				v += " " + sh.prefix;
+				do {
+					if ( s.opType == ColumnRelationExpressionEnum.ColumnReference ) {
+						v += tblTab.GetValue ( s.colIndex );
+					} else {
+						v += s.nameStr;
+					}
+					s = s.chain;
+					if ( s != null ) {
+						v += ".";
+					}
+				} while ( s != null );
+				v += sh.suffix;
+			}
 		}
 		return v;
+	}
+	
+	public static boolean hasSubscriptNodeFormula(TableReader hdrTab, int c ) {
+		String f = formulaValue ( hdrTab, c );
+		
+		return ( "".equals ( f ) || f.startsWith ( ":<<") || f.startsWith (":(" ) || !f.startsWith ( ":^" ));
 	}
 	
 	private void enterColumnAttribute ( DMIElem m, String attr, String val, TableReader tblTab, int c ) {

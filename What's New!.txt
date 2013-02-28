@@ -1,4 +1,16 @@
-===QuickRDA version 4.4.7alpha=== 02/22/2013 dpenkler@gmail.com
+
+===QuickRDA version 4.4.7beta=== 02/28/2013 dpenkler@gmail.com
+---Minor Enhancements---
+   Generate dropdown choices from user entered cell contents if the R3 formula is either blank or starts with ":<<" or ":(" 
+   Only generate dropdowns from the type (R2) value if the R3 formula starts with ":^" 
+   There must be no white space preceding starting delimiters: ":" "<<" "(" "^" in the R3 formula wherever they occur.
+   
+   New mechanism to abort the jar process by entering "q" in the console window.
+   A dot is printed on the console every second to show that the jar process is executing
+
+===QuickRDA version 4.4.7alpha=== 02/22/2013 steve.marney@hp.com dpenkler@gmail.com
+---Minor Enhancement---
+	Added support for multiple subscripts in entry generation formula
 ---Bug Fixes---
     Autoclose causing crash on dropdown generation with tabs from install dir
     Disabled checking of literals in subscript generation rules exist in the metamodel

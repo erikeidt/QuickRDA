@@ -297,6 +297,7 @@ public class Builder {
 		// for ( int i = 0; i < itsFilters.length; i++ ) {
 		//	String f = itsFilters [ i ];
 		for ( String f : itsFilters ) {
+			Start.checkForShutDown();
 			if ( "/subresp".equals ( f ) )
 				Abstraction.promoteSubResponsibilities ( itsBaseVocab, itsConceptMgr, itsOptions.gOptionAutoHide, vw );
 			else if ( "/resp".equals ( f ) )

@@ -25,6 +25,7 @@ import com.hp.QuickRDA.L0.lang.*;
 import com.hp.QuickRDA.L1.Core.*;
 import com.hp.QuickRDA.L2.Names.*;
 import com.hp.QuickRDA.L5.ExcelTool.Builder; // TODO: bad layering: we only need subset of builder (i.e. concept manager at L2...)
+import com.hp.QuickRDA.L5.ExcelTool.Start;
 
 public class Begetting {
 
@@ -43,6 +44,7 @@ public class Begetting {
 		// involve substitution of evocation!
 
 		for ( int i = 0; i < qV.size (); i++ ) {
+			Start.checkForShutDown();
 			DMIElem m = qV.get ( i );
 			if ( m != null ) {
 				// this delays evocation of templates that are within templates;

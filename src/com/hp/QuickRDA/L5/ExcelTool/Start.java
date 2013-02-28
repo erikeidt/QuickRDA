@@ -32,13 +32,13 @@ import com.hp.QuickRDA.L4.Build.*;
 
 public class Start {
 
-	private static String		jVers		= "4.4.7alpha";		// QuickRDA.jar & installation version
+	private static String		jVers		= "4.4.7beta";		// QuickRDA.jar & installation version
 	private static String		xptXLVers	= "4.4.5";		// The expected Excel Add-in version
 
 	// private static DecimalFormat	vFormat		= new DecimalFormat ("#.##");
 
-	public static boolean		gInitialized;
-
+	public static volatile boolean		gInitialized;
+	public static volatile boolean		gShutDown = false;
 	public static String		gMMWKBName;
 	public static Workbook		gMMWKB;
 	public static final String	gMMWKSName	= "MetaModel";
@@ -46,6 +46,7 @@ public class Start {
 	public static String		gAppInstallPath;
 	public static String		gQuickRDATEMPPath;
 	public static String		gLinkbackPath;
+	public static JarProcess    gMonitor;
 
 	public static boolean initialize ( String path, String mmwkb ) {
 		if ( gInitialized )
@@ -69,12 +70,19 @@ public class Start {
 			throw new RuntimeException ( "Could not locate MetaModel worksheet.;" );
 		gMMWKB.Activate ();
 		gInitialized = true;
+		gMonitor = new JarProcess(); 
+		gMonitor.start();
 
 		return gInitialized;
 	}
 
 	private static List<WorkbookReference>	gWorkOpenedWorkbooks	= new ArrayList<WorkbookReference> ();
 
+	public static void checkForShutDown() {
+		
+		if (gShutDown) Start.AbEnd ( "Aborting by user request..." );
+	}
+	
 	public static void track ( WorkbookReference wkbRef ) {
 		gWorkOpenedWorkbooks.add ( wkbRef );
 	}
@@ -110,6 +118,7 @@ public class Start {
 			// and clean up any COM stuff
 			Application.Release ();
 		} catch ( Exception e ) {}
+		gInitialized = false;  // signal jar monitor process to terminate
 	}
 
 	//File Utilities
