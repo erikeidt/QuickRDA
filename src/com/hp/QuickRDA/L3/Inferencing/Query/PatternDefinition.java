@@ -183,7 +183,7 @@ public class PatternDefinition {
 	// 
 	public static class VariableDefinition {
 		QueryVariableKindEnum	itsKind;
-		boolean					itsTaggedForOutput;
+		public boolean			itsTaggedForOutput;
 		// QueryVariableQualifier []	itsQualifiers;
 		int []					itsSubjectQualifyingStatements;
 		int []					itsObjectQualifyingStatements;

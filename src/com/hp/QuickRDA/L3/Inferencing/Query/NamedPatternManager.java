@@ -64,7 +64,7 @@ public class NamedPatternManager {
 		return null;
 	}
 
-	NamedPattern find ( String name ) {
+	public NamedPattern find ( String name ) {
 		for ( int i = 0; i < itsNamedPatterns.size (); i++ ) {
 			NamedPattern np = itsNamedPatterns.get ( i );
 			if ( np.itsName.toLowerCase ().equals ( name.toLowerCase () ) )

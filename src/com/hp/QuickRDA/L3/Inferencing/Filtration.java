@@ -21,11 +21,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 package com.hp.QuickRDA.L3.Inferencing;
 
+import java.util.Iterator;
+
 import com.hp.QuickRDA.L0.lang.*;
 import com.hp.QuickRDA.L0.lang.XSetList.AsListOrSet;
 import com.hp.QuickRDA.L1.Core.*;
 import com.hp.QuickRDA.L2.Names.*;
 import com.hp.QuickRDA.L3.Inferencing.Query.*;
+import com.hp.QuickRDA.L3.Inferencing.Query.Rule.*;
 
 public class Filtration {
 
@@ -115,29 +118,61 @@ public class Filtration {
 				pattern = cmd.toLowerCase ();
 				mLOut = mLIn;
 				*/
-			} else if ( "filter".equals ( op ) || "apply1".equals ( op ) ||  "apply*".equals ( op )) {
+			} else if ( "filter".equals ( op ) || "apply1".equals ( op ) || "apply*".equals ( op ) ) {
 				boolean infer = false;
-				boolean loop  = false;
-				if      ("filter".equals ( op )) { infer = false; loop = false; }
-				else if ("apply1".equals ( op )) { infer = true;  loop = false; }
-				else if ("apply*".equals ( op )) { infer = true;  loop = true;  }
+				boolean loop = false;
+				if ( "filter".equals ( op ) ) {
+					infer = false;
+					loop = false;
+				}
+				else if ( "apply1".equals ( op ) ) {
+					infer = true;
+					loop = false;
+				}
+				else if ( "apply*".equals ( op ) ) {
+					infer = true;
+					loop = true;
+				}
 				// Tracing.startTracing ( Tracing.TraceWave | Tracing.TraceFrame | Tracing.TraceFrameX | Tracing.TraceFrameY /*| Tracing.TraceFrameZ */);
 				// int a = 1;
 
 				String pat = Strings.tSplitAfter ( cmd, xx, "," );
 				cmd = xx.str;
 				ISet<DMIElem> xV = InferencingUtilities.makeList ( cmd, xx, cm.itsBaseVocab.gConcept, cm, true );
-				WaveTraverser wvt = new WaveTraverser ( cm );
-				BoundFrame bf = npm.primePattern ( pat, xV );
-				if ( bf == null )
-					lang.errMsg ( "Couldn't find pattern to apply: " + pat );
-				else {
-					ISet<DMIElem> suggested = null;
-					if ( xV.size () == 0 ) {
-						suggested = new XSetList<DMIElem> ( AsListOrSet.AsSet );
-						bf.suggestSearchSources ( suggested, cm );
+				if ( npm instanceof NamedRuleManager ) {
+					NamedRuleManager nrm = (NamedRuleManager) npm;
+					Rule r = nrm.primeRule ( pat, xV );
+					xV = new XSetList<DMIElem> ( XSetList.AsSet );
+					Iterator<DMIElem []> ri = r.getIterator (); // $$$ ToDo: add infer, loop here
+					if ( ri != null ) {
+						while ( ri.hasNext () ) {
+							DMIElem [] match = ri.next ();
+							int vdLength = r.variableDefinitions.length;
+							for ( int i = 0; i < match.length; i++ ) {
+								boolean accumulate = i >= vdLength;
+								if ( !accumulate ) {
+									if ( r.variableDefinitions [ i ].itsTaggedForOutput )
+										accumulate = true;
+								}
+								if ( accumulate )
+									xV.add ( match [ i ] );
+							}
+						}
 					}
-					xV = wvt.traverse ( xV, new BoundFork ( bf ), infer, loop, suggested );
+				}
+				else {
+					WaveTraverser wvt = new WaveTraverser ( cm );
+					BoundFrame bf = npm.primePattern ( pat, xV );
+					if ( bf == null )
+						lang.errMsg ( "Couldn't find pattern to apply: " + pat );
+					else {
+						ISet<DMIElem> suggested = null;
+						if ( xV.size () == 0 ) {
+							suggested = new XSetList<DMIElem> ( AsListOrSet.AsSet );
+							bf.suggestSearchSources ( suggested, cm );
+						}
+						xV = wvt.traverse ( xV, new BoundFork ( bf ), infer, loop, suggested );
+					}
 				}
 				revealDMIList ( xV, mLOut, false, vw, null );
 			} else if ( "hideall".equals ( op ) ) {
@@ -322,15 +357,15 @@ public class Filtration {
 			} else if ( "hide".equals ( op ) ) {
 				if ( first ) {
 					mLIn = vw.toSet ();
-					vw.clear();
+					vw.clear ();
 				}
 				else {
-					int cnt = mLIn.size();
-					for (int i = 0; i < cnt; i++ ) {
-						DMIElem m = mLIn.get(i);
-						vw.remove(m);
-						if (vwGray != null)
-						vwGray.remove(m);
+					int cnt = mLIn.size ();
+					for ( int i = 0; i < cnt; i++ ) {
+						DMIElem m = mLIn.get ( i );
+						vw.remove ( m );
+						if ( vwGray != null )
+							vwGray.remove ( m );
 					}
 				}
 				mLOut = mLIn;
