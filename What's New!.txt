@@ -1,3 +1,6 @@
+===QuickRDA version 4.5.0=== 11/22/2013 eeidt.net@gmail.com
+---New branch---
+	added alternative filter/rule execution engine
 
 ===QuickRDA version 4.4.8=== 11/22/2013 dpenkler@gmail.com
 --New branch--
