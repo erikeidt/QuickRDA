@@ -51,4 +51,33 @@ public class BuildUtilities {
 		return s;
 	}
 
+	public static String escapeTextForFile ( String s ) {
+		String res = ""; 
+		char[] buf = s.toCharArray(); 
+		int charval;
+		for(int i=0;i<buf.length;i++) { 
+			switch (buf[i]) {
+			case '<':  
+			case '>': 
+			case ':': 
+			case '"':
+			case '/':
+			case '\\':
+			case '|': 
+			case '?': 
+			case '*': 
+			case '&': 
+			case ' ':     res += "_";		break;
+			default: {
+				charval = buf[i];
+				if (charval < 32) ; // drop control chars
+				//	else if (charval > 127) res += "_";
+				else res += Character.toString (buf[i]);	
+			}
+			}
+		}
+//		System.out.println ("Input:  " + s );
+//		System.out.println ("Result: " + res );
+		return res;
+	}
 }

@@ -74,7 +74,7 @@ public class Builder {
 
 		BufferedReader in = TextFile.openTheFileForRead ( Start.gAppInstallPath, BuildOptions.gQuickRDABasePatternsFileName, BuildOptions.gQuickRDABasePatternsFileSuffix, null );
 		if ( in != null ) {
-			// Hide template stuff from Dropdowns, TemplateFiler defined in QuickRDA.txt or similar dmp
+			// Hide template stuff from Dropdowns, TemplateFilter defined in QuickRDA.txt or similar dmp
 			if ( dropdowns )
 				addFilter ( "/filter=TemplateFilter;hide" );
 			TextToPattern ttp = new TextToPattern ( in, itsNamedPatternMgr, itsConceptMgr );
@@ -86,7 +86,7 @@ public class Builder {
 	}
 
 	public DualView build ( String filePath, TableReader buildTab, boolean isBuildTableV2, int ci, Range highlightR, boolean dropdowns ) {
-		buildStart ();
+		buildStart (dropdowns);
 		// buildMetaModels ( filePath, buildTab, isBuildTableV2, dropdowns );
 		// System.out.println("mmbuilt");
 		buildGraphFromInfo ( filePath, buildTab, isBuildTableV2, ci, highlightR, dropdowns );
@@ -94,7 +94,7 @@ public class Builder {
 		return buildFinish ();
 	}
 
-	public void buildStart () {
+	public void buildStart (boolean dropdowns) {
 		itsOptions = new BuildOptions ();
 
 		itsGraph = new DMIGraph ();
@@ -102,7 +102,7 @@ public class Builder {
 		itsBaseVocab = itsGraph.itsBaseVocab;
 
 		DMISubgraph s;
-		s = new DMISubgraph ( itsGraph, "Underlying/DMI Metamodel", DMISubgraph.SubgraphLevelEnum.kUnderlyingMetamodel, false, false, false );
+		s = new DMISubgraph ( itsGraph, "Underlying/DMI Metamodel", DMISubgraph.SubgraphLevelEnum.kUnderlyingMetamodel, false, dropdowns, false );
 
 		itsConceptMgr = new ConceptManager ();
 		itsConceptMgr.bindToSubgraphConfiguration ( s, s, s, s, s, s, s );
@@ -235,56 +235,6 @@ public class Builder {
 		}
 	}
 
-/*	private void buildMetaModels ( String filePath, TableReader buildTab, boolean isBuildTableV2, boolean dropdowns ) {
-		boolean viz = dropdowns;
-		for ( int r = isBuildTableV2 ? 1 : 2; r <= buildTab.RowLast () - (isBuildTableV2 ? 0 : 1); r++ ) {
-
-			String wkbName = buildTab.GetValue ( r, 1 );
-			String sheetName = buildTab.GetValue ( r, 2 );
-			if ( "".equals ( wkbName ) && "".equals ( sheetName ) )
-				continue;
-			if ( sheetName.startsWith ( "\\" ) || sheetName.startsWith ( "/" ) )
-				continue;
-			String path = filePath;
-
-			if ( wkbName.startsWith ( "~" ) ) {
-				path = Start.gAppInstallPath;
-				if ( wkbName.startsWith ( "~\\" ) || wkbName.startsWith ( "~/" ) )
-					wkbName = wkbName.substring ( 2 );
-				else
-					wkbName = wkbName.substring ( 1 );
-			}
-
-			if ( !"".equals ( wkbName ) || !"".equals ( sheetName ) ) {
-				WorkbookReference wkbRef = Start.openBook ( path, wkbName, true );
-				if ( wkbRef.wkb != null ) {
-					if ( !wkbRef.wasAlreadyOpen )
-						Start.track ( wkbRef );
-					if ( "".equals ( sheetName ) ) {
-						Worksheets wkss = wkbRef.wkb.Worksheets ();
-						int ixc = wkss.Count ();
-						for ( int i = 1; i <= ixc; i++ ) {
-							Worksheet wks = wkss.Item ( i );
-							buildMMfromWorkSheet ( wks, viz ); //Invisible
-						}
-					} else {
-						Worksheet wks = wkbRef.wkb.Worksheets ( sheetName );
-						if ( wks == null )
-							lang.errMsg ( "Worksheet not found: " + sheetName );
-						else
-							buildMMfromWorkSheet ( wks, viz );
-					}
-					if ( !wkbRef.wasAlreadyOpen ) {
-						wkbRef.wasAlreadyOpen = false;
-						wkbRef.wkb.Close ( false, null, false );
-						wkbRef.wkb = null;
-					}
-				}
-			}
-		} // for each row
-	}
-*/
-	
 	private void buildGraphFromInfo ( String filePath, TableReader buildTab, boolean isBuildTableV2, int ci, Range highlightR, boolean dropdowns ) {
 		buildGraphFromInfoPass ( filePath, buildTab, isBuildTableV2, ci, 0, highlightR, dropdowns );
 		buildGraphFromInfoPass ( filePath, buildTab, isBuildTableV2, ci, 1, highlightR, dropdowns );
@@ -319,6 +269,7 @@ public class Builder {
 					if ( f.startsWith ( abs ) )
 						Abstraction.performAbstraction ( f.substring ( abs.length () ), itsConceptMgr, itsOptions.gOptionAutoHide, vw, false );
 					else {
+						System.out.println ( "Running filter: " + f + "..." );
 						vwGray = Filtration.runFilter ( f, itsGraph, itsConceptMgr, itsNamedPatternMgr, vw, vwGray, fo );
 					}
 				}
@@ -395,8 +346,8 @@ public class Builder {
 			}
 			else if ( "/bxrole".equals ( incl ) )
 				itsBaseVocab.gRole.itsDiagrammingInfo.itsShape = "box";
-			else if ( "/atob".equals ( incl ) )
-				itsBaseVocab.gOwnedBy.itsDiagrammingInfo.itsContainment = "attach";
+	//		else if ( "/atob".equals ( incl ) )
+	//			itsBaseVocab.gOwnedBy.itsDiagrammingInfo.itsContainment = "attach";
 			else if ( "/atresp".equals ( incl ) ) {
 				DMISubgraph sg = itsConceptMgr.setDefaultSubgraph ( itsConceptMgr.itsInvisiblexSG );
 				// itsBaseVocab.gAssignedTo.itsDiagrammingInfo.itsContainment = "attach";
@@ -503,7 +454,8 @@ public class Builder {
 			} else if ( incl.startsWith ( nodeSizeEq ) ) {
 				itsOptions.gNodeFontSize = Integer.parseInt ( mcIncl.substring ( nodeSizeEq.length () ) );
 			} else {
-				addFilter ( mcIncl );
+				if (!incl.startsWith ( showTypeEq ) && !incl.startsWith ( vStackedEq ))
+					addFilter ( mcIncl );
 			}
 		} else if ( stage == 1 ) {
 			;
@@ -659,16 +611,18 @@ public class Builder {
 	private void buildGraphFromWorkSheet ( Workbook wkb, Worksheet wks, String name, Range highlightR, boolean mmvis, List<String> columnExclusions ) {
 		// Application.SetScreenUpdating(0);
 		// Start.gMMWKB.Activate();
-
+		
 		// try {
+		String mVis = (mmvis) ? "Visible" : "Invisible";
 		if ( wks.Visible () == Constants.xlSheetVisible ) {
 			Range sutR = wks.GetSourceUnitTable ();
 			if ( sutR != null ) {
 				itsConceptMgr.setProvenanceInfo ( wks.Parent ().Name (), wks.Name (), sutR.Row () );
-				Application.StatusBar ( "Working on workbook: " + wks.Parent ().Name () + ", worksheet: " + wks.Name () );
+				Application.StatusBar ( "Working on workbook: " + wks.Parent ().Name () + ", worksheet: " + wks.Name () + " DataEntry " + mVis );
 				buildGraphFromRangeObject ( wkb, wks, sutR, highlightR, columnExclusions );
 			}
 			else {
+				Application.StatusBar ( "Working on workbook: " + wks.Parent ().Name () + ", worksheet: " + wks.Name () + " Metamodel " + mVis );
 				buildMMfromWorkSheet ( wks, mmvis );
 			}
 		}

@@ -45,7 +45,7 @@ public class DMIElementDiagrammingInfo {
 	DMIElem []		itsDDVizSet;
 	public String	itsDefaultViz;
 	public String	itsDisplay;
-	public String	itsContainment;
+//	public String	itsContainment;
 	public String	itsDirection;
 	public String	itsBiDirect;
 	public String	itsArrowHead;

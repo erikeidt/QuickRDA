@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 package com.hp.QuickRDA.L0.lang;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -30,11 +31,13 @@ import java.io.PrintStream;
 
 public class TextFile {
 
+	private static final int mBufferSize = 262144; 
+	
 	public static PrintStream openTheFileForCreate ( String filePath, String filePrefix, String fileSuffix ) {
 		String ans = filePath + "\\" + filePrefix + fileSuffix;
 		// Open ans For fileNum Output;
 		try {
-			return new PrintStream ( new FileOutputStream ( ans, false ) );
+			return new PrintStream ( new BufferedOutputStream (new FileOutputStream ( ans, false ), mBufferSize ), false );
 		} catch ( Exception e ) {}
 		return null;
 	}
@@ -42,14 +45,14 @@ public class TextFile {
 	public static PrintStream openTheFileForCreateThrowing ( String filePath, String filePrefix, String fileSuffix ) throws FileNotFoundException {
 		String ans = filePath + "\\" + filePrefix + fileSuffix;
 		// Open ans For fileNum Output;
-		return new PrintStream ( new FileOutputStream ( ans, false ) );
+		return  new PrintStream ( new BufferedOutputStream (new FileOutputStream ( ans, false ), mBufferSize ), false );
 	}
 
 	public static PrintStream openTheFileForAppend ( String filePath, String filePrefix, String fileSuffix ) {
 		String ans = filePath + "\\" + filePrefix + fileSuffix;
 		// Open ans For fileNum Append;
 		try {
-			return new PrintStream ( new FileOutputStream ( ans, true ) );
+			return new PrintStream ( new BufferedOutputStream ( new FileOutputStream ( ans, true ), mBufferSize ), false);
 		} catch ( Exception e ) {}
 		return null;
 	}

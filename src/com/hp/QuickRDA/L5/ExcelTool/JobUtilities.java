@@ -21,7 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 package com.hp.QuickRDA.L5.ExcelTool;
 
-import java.lang.ProcessBuilder;
+ import java.lang.ProcessBuilder;
 
 public class JobUtilities {
 
@@ -34,11 +34,16 @@ public class JobUtilities {
 			else
 				prgName = "\\StartBatchBrowser.bat";
 		}
-		String prg = Start.gAppInstallPath + prgName;
+		String prg = "\"" + Start.gAppInstallPath + prgName + "\"" ;
 
-		String arg = filePath + "\\" + filePrefix;
+		String arg =  "\"" + filePath + "\\" + filePrefix + "\"";
 
 		try {
+		//	String command = prg + " " + arg;
+		//	System.out.println("startBatchJob: <" + command + ">");
+		//	String userInput = console.readLine();
+			
+			// Runtime.getRuntime().exec(command);
 			new ProcessBuilder ( prg, arg ).start ();
 		} catch ( Exception e ) {}
 	}

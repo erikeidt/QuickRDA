@@ -1,5 +1,67 @@
 
-===QuickRDA version 4.4.7beta=== 02/28/2013 dpenkler@gmail.com
+===QuickRDA version 4.4.8=== 11/22/2013 dpenkler@gmail.com
+--New branch--
+   Prepare code merge for new filter mechanism from Erik
+
+===QuickRDA version 4.4.7kappa=== 11/20/2013 dpenkler@gmail.com
+--Minor Enhancement--
+   Added buffering to speed up outputting to sharepoint files
+    
+===QuickRDA version 4.4.7iota=== 11/04/2013 dpenkler@gmail.com
+--Minor Enhancements--
+   Removed linkage between all CSA metamodel concepts and the
+     quickRDA java source code. All items in the Flag# column 
+     (column C) with a value of 300 or greater can be dropped
+     as they are ignored.
+   Printing an error when Containment diagramming information
+     is present in Containment column (column Y) of the metatmodel.
+     This field was and still is being ingored.
+   Added translation of \n to <br/> for dictionary
+===QuickRDA version 4.4.7theta=== 10/16/2013 dpenkler@gmail.com
+--New Feature--
+   Added Data Dictionary Generator plugin
+   Build table entry:
+	 /run=com.hp.QuickRDA.Plugins.DictGenerator
+===QuickRDA version 4.4.7eta=== 08/20/2013 dpenkler@gmail.com
+---Minor Enhancements---
+   When opening a workbook with JEB links are now not
+   updated to avoid dialog pop-up from Excel
+   Filtering ampersand and space characters in file names
+   
+===QuickRDA version 4.4.7zeta=== 07/18/2013 dpenkler@gmail.com
+---Bug Fix ---
+   Remove duplicates in stripped pulldown columns
+---Minor Enhancements---
+   Escaping for filenames for generated output:
+   		s/[<>:"\/\\|?*]/_/g 
+   		suppress control characters
+   		prepend '&'with space if needed
+   Use diagram label for svg Title in DOT generator
+   
+===QuickRDA version 4.4.7epsilon=== 06/20/2013 dpenkler@gmail.com
+---Minor Enhancements---
+   Append "Stripped" to .QDropDowns column names for stripped sources
+   
+===QuickRDA version 4.4.7delta=== 06/20/2013 dpenkler@gmail.com
+---Minor Enhancements---
+
+   Make DMI metamodel entities visible for dropdown generation
+   Remove duplicates enabled
+---Bug Fixes---
+   Don't suppress subscripts on R3 if it does not start with ":^"
+   New dropdown sources were not added to target 
+   
+===QuickRDA version 4.4.7gamma=== 02/28/2013 dpenkler@gmail.com
+---Minor Enhancements---
+   Supress subscripts if the R3 formula starts with ":<<" or ":(" 
+   There must be no white space preceding starting delimiters: ":" "<<" "(" "^" in the R3 formula wherever they occur.
+   
+   New mechanism to abort the jar process by entering "q" in the console window.
+   A dot is printed on the console every second to show that the jar process is executing
+---Bug Fixes---
+   Don't add filters on /selectnode= and /vstacked=
+   
+   ===QuickRDA version 4.4.7beta=== 02/28/2013 dpenkler@gmail.com
 ---Minor Enhancements---
    Generate dropdown choices from user entered cell contents if the R3 formula is either blank or starts with ":<<" or ":(" 
    Only generate dropdowns from the type (R2) value if the R3 formula starts with ":^" 
@@ -7,7 +69,7 @@
    
    New mechanism to abort the jar process by entering "q" in the console window.
    A dot is printed on the console every second to show that the jar process is executing
-
+   
 ===QuickRDA version 4.4.7alpha=== 02/22/2013 steve.marney@hp.com dpenkler@gmail.com
 ---Minor Enhancement---
 	Added support for multiple subscripts in entry generation formula

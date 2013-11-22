@@ -64,7 +64,7 @@ public class DOTGenerator implements IGeneratorPlugin {
 			}
 		}
 
-		dot.generateDOTFile ( ps, genInfo.itsFilePrefix, genInfo.itsFilePrefix, genInfo.itsQuickRDAVersion );
+		dot.generateDOTFile ( ps, genInfo.itsFilePrefix, genInfo.itsBuildColumnLabel, genInfo.itsQuickRDAVersion );
 
 		// genInfo.itsSB == SingleBatch.Batch
 		JobUtilities.startBatchJob ( genDir, genInfo.itsFilePrefix, ".txt", genInfo.itsIsFirst && (genInfo.itsVX != Viewer.NoViewer), genInfo.itsVX == Viewer.UseAlternateViewer );

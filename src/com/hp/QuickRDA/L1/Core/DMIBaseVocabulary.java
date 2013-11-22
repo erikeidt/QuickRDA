@@ -121,14 +121,14 @@ public class DMIBaseVocabulary {
 	public DMIElem	gInteractsWith;
 
 	//CSA
-	public DMIElem	gService;
-	public DMIElem	gCRUDService;
-	public DMIElem	gOwnedBy;
+	//public DMIElem	gService;
+	//public DMIElem	gCRUDService;
+	//public DMIElem	gOwnedBy;
 
-	public DMIElem	gOperation;
-	public DMIElem	gIsInService;
+	//public DMIElem	gOperation;
+	//public DMIElem	gIsInService;
 
-	public DMIElem	gIsCRUDService;
+	//public DMIElem	gIsCRUDService;
 
 	public void setBuiltIn ( DMIElem m, int ix ) {
 		switch ( ix ) {
@@ -382,25 +382,25 @@ public class DMIBaseVocabulary {
 			gRefersTo = m;
 			break;
 
-		case 300 :
-			gService = m;
-			break;
-		case 301 :
-			gCRUDService = m;
-			break;
-		case 310 :
-			gOperation = m;
-			break;
-
-		case 318 :
-			gIsInService = m;
-			break;
-		case 338 :
-			gIsCRUDService = m;
-			break;
-		case 340 :
-			gOwnedBy = m;
-			break;
+//		case 300 :
+//			gService = m;
+//			break;
+//		case 301 :
+//			gCRUDService = m;
+//			break;
+//		case 310 :
+//			gOperation = m;
+//			break;
+//
+//		case 318 :
+//			gIsInService = m;
+//			break;
+//		case 338 :
+//			gIsCRUDService = m;
+//			break;
+//		case 340 :
+//			gOwnedBy = m;
+//			break;
 		}
 	}
 

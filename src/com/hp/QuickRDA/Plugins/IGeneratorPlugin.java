@@ -24,6 +24,7 @@ package com.hp.QuickRDA.Plugins;
 import com.hp.QuickRDA.L1.Core.*;
 import com.hp.QuickRDA.L2.Names.*;
 import com.hp.QuickRDA.L4.Build.BuildOptions;
+import com.hp.QuickRDA.L4.Build.BuildUtilities;
 import com.hp.QuickRDA.L5.ExcelTool.*;
 
 public interface IGeneratorPlugin {
@@ -51,6 +52,7 @@ public interface IGeneratorPlugin {
 		public boolean				itsIsFirst;
 		public Viewer				itsVX;
 
+		String                      itsTitle;
 		String						itsFilePath;
 		String						itsFilePrefix;
 		String						itsFileSuffix;			// suggested suffix
@@ -73,8 +75,9 @@ public interface IGeneratorPlugin {
 		}
 
 		public void SetStrings ( String fPath, String fPrefix, String fSuffix, String label, String vers, String temp, String link ) {
-			itsFilePath = fPath;
-			itsFilePrefix = fPrefix;
+			itsFilePath   = fPath;
+			itsTitle      = fPrefix;
+			itsFilePrefix = BuildUtilities.escapeTextForFile ( fPrefix );
 			itsFileSuffix = fSuffix;
 			itsBuildColumnLabel = label;
 			itsQuickRDAVersion = vers;

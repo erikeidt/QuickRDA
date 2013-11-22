@@ -185,6 +185,11 @@ public class MetamodelReader {
 		} else {
 			DMIElem m = itsConceptMgr.enterPreAllocatedConcept ( nameStr, mr.m );
 			assert m == mr.m : "m (" + m.itsIndex + ") != mr.m (" + mr.m.itsIndex + ")";
+			DMIElem q = itsConceptMgr.findConcept ( qualStr, null );
+			if (q != null) {
+				if (m.itsQualifiers == null) m.itsQualifiers = new XSetList<DMIElem> ( XSetList.AsSet, XSetList.HashOnDemand );
+				m.itsQualifiers.add ( q );
+			}
 		}
 		// #}
 
@@ -372,8 +377,9 @@ public class MetamodelReader {
 		str = mTab.GetValue ( r, ic );
 		ic = ic + 1;
 		if ( str != "" ) {
-			d = DMIElementDiagrammingInfo.allocateIfNull ( d );
-			d.itsContainment = str;
+//			d = DMIElementDiagrammingInfo.allocateIfNull ( d );
+//			d.itsContainment = str;
+			lang.errMsg ( "Containment diagramming info no longer supported. In row " + r + "\n" );
 		}
 
 		str = mTab.GetValue ( r, ic );

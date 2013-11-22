@@ -149,6 +149,7 @@ public class BuildTraverse {
 				// IGeneratorPlugin igp = GeneratorPluginFinder.findPlugin (cmd, IGeneratorPlugin.class);
 				IGeneratorPlugin igp = PluginFinder.findGeneratorPlugin ( cmd );
 				if ( igp != null ) {
+					System.out.println("Running Plugin" + cmd);
 					@SuppressWarnings("unused")
 					String status = igp.generate ( genInfo, cmd );
 				}
@@ -159,5 +160,4 @@ public class BuildTraverse {
 			ci = ci + 1;
 		}
 	}
-
 }

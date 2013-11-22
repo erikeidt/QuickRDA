@@ -359,7 +359,7 @@ public class LanguageReasoner {
 			graph = "graph";
 		}
 
-		itsDOTOutput.println ( graph + " \"" + filePrefix + " (" + quickRDAVers + ")\" {" );
+		itsDOTOutput.println ( graph + " \"" + NameUtilities.escapeTextForHTMLCommon(diagramLabel) + " (" + quickRDAVers + ")\" {" );
 
 		if ( itsOptions.gGVOpts != null )
 			itsDOTOutput.println ( itsOptions.gGVOpts );
@@ -883,7 +883,7 @@ public class LanguageReasoner {
 			ans += "<tr><td align=\"center\" valign=\"middle\" border=\"0\">";
 			if ( level > 0 )
 				ans += "<font point-size=\"" + (itsOptions.gNodeFontSize - level) + "\">";
-			ans += escapeTextForHTML ( n );
+			ans += NameUtilities.escapeTextForHTML ( n );
 			if ( level > 0 )
 				ans += "</font>";
 			ans += "</td></tr></table><tr>";
@@ -894,7 +894,7 @@ public class LanguageReasoner {
 				ans += "\r\n\t<tr><td align=\"center\" valign=\"middle\" border=\"0\">";
 				if ( level > 0 )
 					ans += "<font point-size=\"" + (itsOptions.gNodeFontSize - level) + "\">";
-				ans += escapeTextForHTML ( n );
+				ans += NameUtilities.escapeTextForHTML ( n );
 				if ( level > 0 )
 					ans += "</font>";
 				ans += "</td></tr>";
@@ -915,7 +915,7 @@ public class LanguageReasoner {
 				if ( e.getAttachCount () > 0 )
 					nm = attachLabel ( e, nm, parX, x, level + 1 );
 				else
-					nm = escapeTextForHTML ( nm );
+					nm = NameUtilities.escapeTextForHTML ( nm );
 
 				e.itsWasGenerated = true;
 
@@ -936,10 +936,10 @@ public class LanguageReasoner {
 
 				String xURLStr = composeLinkBackURL ( e );
 				if ( xURLStr != null && !"".equals ( xURLStr ) ) {
-					ans += "href=\"" + escapeTextForHTMLAttribute ( xURLStr ) + "\" ";
+					ans += "href=\"" + NameUtilities.escapeTextForHTMLCommon ( xURLStr ) + "\" ";
 				}
 				if ( desc != "" ) {
-					ans += "tooltip=\"" + escapeTextForHTMLAttribute ( desc ) + "\" ";
+					ans += "tooltip=\"" + NameUtilities.escapeTextForHTMLCommon ( desc ) + "\" ";
 				} else {
 					ans += "tooltip=\" \" ";
 				}
@@ -961,7 +961,7 @@ public class LanguageReasoner {
 				ans += "</tr>\r\n\t<tr><td align=\"center\" valign=\"middle\" colspan=\"" + aV.size () + "\" border=\"0\">";
 				if ( level > 0 )
 					ans += "<font point-size=\"" + (itsOptions.gNodeFontSize - level) + "\">";
-				ans += escapeTextForHTML ( n );
+				ans += NameUtilities.escapeTextForHTML ( n );
 				if ( level > 0 )
 					ans += "</font>";
 				ans += "</td></tr></table>";
@@ -1418,7 +1418,7 @@ public class LanguageReasoner {
 
 	public static String escapeTextForDOTTooltip ( String sIn ) {
 		//it's not really HTML, but it's not really DOT either...
-		return escapeTextForHTML ( sIn );
+		return NameUtilities.escapeTextForHTML ( sIn );
 		// return esacpeTextForDOT ( sIn );
 		//DOTTooltipEscapeText = URLEncode(sIn, true, false, True)
 	}
@@ -1427,46 +1427,8 @@ public class LanguageReasoner {
 		return BuildUtilities.makeJSONEscapeText ( sIn );
 	}
 
-	public static String escapeTextForHTML ( String s ) {
-		s = escapeTextForHTMLCommon ( s );
-		s = Strings.Replace ( s, "\r\n", "<br/>" ); // do 2nd last
-		s = Strings.Replace ( s, '\n', "<br/>" ); // do last
-		return s;
-	}
-
-	public static String escapeTextForHTMLAttribute ( String s ) {
-		s = Strings.Replace ( s, "\r\n", " " );
-		s = Strings.Replace ( s, '\n', " " );
-		return escapeTextForHTMLCommon ( s );
-	}
-
-	public static String escapeTextForHTMLCommon ( String s ) {
-		
-		
-		String res = ""; 
-	    char[] buf = s.toCharArray(); 
-		int charval;
-		for(int i=0;i<buf.length;i++) { 
-			switch (buf[i]) {
-			case '&':   res += "&amp;"; break; //   do first: before other &xxx; or &# or &x replacements
-			case '\"': res += "&quot;"; break;
-			case '\'': 
-			case '’':  res += "&apos;"; break;
-			case '<':  res += "&lt;";   break;
-			case '>':  res += "&gt;";   break;
-			default: {
-	    	charval = buf[i];
-	    	if (charval < 32) res += " "; // less than space is space" +
-	    	else if (charval > 127) res += "&#" + Integer.toString(charval) + ";";
-	    	else res += Character.toString (buf[i]);	
-	    	}
-			}
-		}
-		// System.out.println ("Input:  " + s );
-		// System.out.println ("Result: " + res );
-		return res;
-	}
-
+	
+	
 	public static String wrapText ( String sIn ) {
 		String ans = "";
 		String str = sIn;

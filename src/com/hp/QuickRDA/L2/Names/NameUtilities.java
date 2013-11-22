@@ -76,6 +76,7 @@ public class NameUtilities {
 	}
 
 	public static String getDescriptionFor ( DMIElem m, DMIGraph g ) {
+		if (m == null) return "";
 		return  (m.itsDescription == null) ? "" : m.itsDescription;
 	}
 
@@ -162,37 +163,44 @@ public class NameUtilities {
 		return str;
 	}
 
+	public static String trimDifferentiator ( String s ) {
+		
+			return trimDifferentiator(trimDifferentiator(s,"<<",">>"),"(",  ")");
+	}
+	
 	// Trim << ... >>
 	// Additional:
 	//  1: trim nested: << << ... >> >>
 	//  2: trim subsequent << >> << >>
-	public static String trimDifferentiator ( String s ) {
+	private static String trimDifferentiator ( String s , String pref, String suff) {
 		String ans;
+		int prel = pref.length();
+		int sufl = suff.length();
 		for ( ;; ) {
 			int q;
 			ans = s;
-			int p0 = Strings.InStr ( 1, s, "<<" );
+			int p0 = Strings.InStr ( 1, s, pref );
 			if ( p0 > 0 ) {
 				int n = 0;
-				int p1 = p0 + 2;
+				int p1 = p0 + prel;
 				for ( ;; ) {
-					q = Strings.InStr ( p1, s, ">>" );
-					int r = Strings.InStr ( p1, s, "<<" );
+					q = Strings.InStr ( p1, s, suff );
+					int r = Strings.InStr ( p1, s, pref );
 
 					if ( r > 0 && r < q ) {
 						n = n + 1;
-						p1 = r + 2;
+						p1 = r + prel;
 						continue;
 					} else if ( q > 0 && n > 0 ) {
 						n = n - 1;
-						p1 = q + 2;
+						p1 = q + sufl;
 						continue;
 					}
 					break;
 				}
 				if ( q > 0 ) {
 					// TrimDifferentiator = XTrim(TrimDifferentiator(XTrim(Mid(s, 1, p0 - 1) + Mid(s, q + 2))))
-					s = Strings.xtrim ( Strings.Mid ( s, 1, p0 - 1 ) + Strings.Mid ( s, q + 2 ) );
+					s = Strings.xtrim ( Strings.Mid ( s, 1, p0 - 1 ) + Strings.Mid ( s, q + sufl ) );
 					continue;
 				}
 			}
@@ -269,4 +277,38 @@ public class NameUtilities {
 		return name + " <<" + sb + diffVB + ob + ">>";
 	}
 
+
+	public static String escapeTextForHTMLCommon ( String s ) {
+
+		String res = ""; 
+		char[] buf = s.toCharArray(); 
+		int charval;
+		for(int i=0;i<buf.length;i++) { 
+			switch (buf[i]) {
+			case '&':  res += "&amp;";  break; //   do first: before other &xxx; or &# or &x replacements
+			case '\"': res += "&quot;"; break;
+			case '\'': 
+			case '’':  res += "&apos;"; break;
+			case '<':  res += "&lt;";   break;
+			case '>':  res += "&gt;";   break;
+			default: {
+				charval = buf[i];
+				if (charval < 32) res += " "; // less than space is space" +
+				else if (charval > 127) res += "&#" + Integer.toString(charval) + ";";
+				else res += Character.toString (buf[i]);	
+			}
+			}
+		}
+		// System.out.println ("Input:  " + s );
+		// System.out.println ("Result: " + res );
+		return res;
+	}
+	
+	public static String escapeTextForHTML ( String s ) {
+		s = escapeTextForHTMLCommon ( s );
+		s = Strings.Replace ( s, "\\r\\n", "<br/>" ); // do 2nd last
+		s = Strings.Replace ( s, "\\n", "<br/>" ); // do last
+		return s;
+	}
+	
 }

@@ -788,7 +788,7 @@ public class SourceUnitReader {
 	public static boolean hasSubscriptNodeFormula(TableReader hdrTab, int c ) {
 		String f = formulaValue ( hdrTab, c );
 		
-		return ( "".equals ( f ) || f.startsWith ( ":<<") || f.startsWith (":(" ) || !f.startsWith ( ":^" ));
+		return ( f.startsWith ( ":<<") || f.startsWith (":(" ));
 	}
 	
 	private void enterColumnAttribute ( DMIElem m, String attr, String val, TableReader tblTab, int c ) {
@@ -870,6 +870,10 @@ public class SourceUnitReader {
 		}
 	}
 
+	public static String columnNameRow ( TableReader hdrTab, int c ) {
+		return hdrTab.GetValue ( kTableColNameRow, c );
+	}
+	
 	public static String columnTypeValue ( TableReader hdrTab, int c ) {
 		return hdrTab.GetValue ( kTableTypeRow, c );
 	}
