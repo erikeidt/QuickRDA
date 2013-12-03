@@ -399,6 +399,7 @@ class UnOPStatmentIterator extends AbstractQueryStatementIterator {
 class BinOPStatementIterator extends AbstractQueryStatementIterator {
 	BinOPStatement			stmt;
 	boolean					firstChild;
+	boolean					optionalMatched;
 	Iterator<DMIElem []>	firstChildIterator;
 	Iterator<DMIElem []>	secondChildIterator;
 
@@ -425,6 +426,24 @@ class BinOPStatementIterator extends AbstractQueryStatementIterator {
 					return true;
 				firstChild = true;
 			}
+		case '*' :
+			for ( ;; ) {
+				if ( firstChild ) {
+					boolean first = firstChildIterator.hasNext ();
+					if ( !first )
+						return false;
+					secondChildIterator = stmt.itsRight.getIterator ( rule, firstChildIterator.next () );
+					firstChild = false;
+					optionalMatched = false;
+				}
+				if ( secondChildIterator.hasNext () ) {
+					optionalMatched = true;
+					return true;
+				}
+				firstChild = true;
+				if ( !optionalMatched )
+					return true;
+			}
 		case '|' :
 			if ( firstChild ) {
 				boolean ans = firstChildIterator.hasNext ();
@@ -446,6 +465,8 @@ class BinOPStatementIterator extends AbstractQueryStatementIterator {
 		switch ( stmt.itsOP ) {
 		case '&' :
 			return secondChildIterator.next ();
+		case '*' :
+			return optionalMatched ? secondChildIterator.next () : firstChildIterator.next ();
 		case '|' :
 			return firstChild ? firstChildIterator.next () : secondChildIterator.next ();
 		default :

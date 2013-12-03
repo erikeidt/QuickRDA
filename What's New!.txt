@@ -1,5 +1,9 @@
+===QuickRDA version 4.5.1=== 12/03/2013 eeidt.net@gmail.com
+--Minor Enhancements--
+	introduced binary * operator
+
 ===QuickRDA version 4.5.0=== 11/22/2013 eeidt.net@gmail.com
----New branch---
+--Major Enhancements--
 	added alternative filter/rule execution engine
 
 ===QuickRDA version 4.4.8=== 11/22/2013 dpenkler@gmail.com

@@ -185,7 +185,7 @@ public class TextToRule {
 						continue; // stay in state 2
 					itsTkn.scanError ( "parenthesis mismatch, unexpected operator on stack (\'" + op + "\')" );
 				}
-				else if ( token == '|' || token == '&' ) {
+				else if ( token == '|' || token == '&' || token == '*' ) {
 					itsTkn.advanceChar ();
 					reduceWhileHigherPrecedence ( (char) token, operatorStack, operandStack );
 					operatorStack.add ( (char) token );
@@ -267,6 +267,8 @@ public class TextToRule {
 				reduceUnop ( op, operatorStack, operandStack );
 				continue;
 			}
+			if ( op == '*' && onRight == '*' ) // right associativity for operator *
+				break;
 			if ( op == '&' && onRight == '|' )
 				break;
 			operatorStack.pop ();
