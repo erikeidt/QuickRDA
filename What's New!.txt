@@ -1,3 +1,7 @@
+===QuickRDA version 4.5.2=== 12/06/2013 eeidt.net@gmail.com
+--Minor Enhancements--
+	fixed binary * operator
+
 ===QuickRDA version 4.5.1=== 12/03/2013 eeidt.net@gmail.com
 --Minor Enhancements--
 	introduced binary * operator

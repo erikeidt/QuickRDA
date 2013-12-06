@@ -426,7 +426,7 @@ class BinOPStatementIterator extends AbstractQueryStatementIterator {
 					return true;
 				firstChild = true;
 			}
-		case '*' :
+		case '%' :
 			for ( ;; ) {
 				if ( firstChild ) {
 					boolean first = firstChildIterator.hasNext ();
@@ -465,7 +465,7 @@ class BinOPStatementIterator extends AbstractQueryStatementIterator {
 		switch ( stmt.itsOP ) {
 		case '&' :
 			return secondChildIterator.next ();
-		case '*' :
+		case '%' :
 			return optionalMatched ? secondChildIterator.next () : firstChildIterator.next ();
 		case '|' :
 			return firstChild ? firstChildIterator.next () : secondChildIterator.next ();
