@@ -9,6 +9,7 @@
 ===QuickRDA version 4.5.0=== 11/22/2013 eeidt.net@gmail.com
 --Major Enhancements--
 	added alternative filter/rule execution engine
+	User /newrules option in build column to enable
 
 ===QuickRDA version 4.4.8=== 11/22/2013 dpenkler@gmail.com
 --New branch--
