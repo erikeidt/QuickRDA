@@ -186,7 +186,7 @@ public class TextToRule {
 					itsTkn.scanError ( "parenthesis mismatch, unexpected operator on stack (\'" + op + "\')" );
 				}
 				else if ( token == '|' || token == '&' || token == '*' ) {
-					if ( token == '*' )
+					if ( token == '*' ) 
 						token = '%';
 					itsTkn.advanceChar ();
 					reduceWhileHigherPrecedence ( (char) token, operatorStack, operandStack );

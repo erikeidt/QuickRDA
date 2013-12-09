@@ -151,6 +151,8 @@ public class BuildOptions {
 	public boolean				gOptionIgnoreEdgeEnv;
 
 	public boolean				gOptionTrunc;
+	
+	public boolean				gOptionNoViewer;
 
 	public BuildOptions () {
 		//Inferencing defaults
@@ -174,6 +176,7 @@ public class BuildOptions {
 		gNodeFontSize = kDefNodeFontSize;
 		gNodeFontAndSize = kDefNodeFontAndSize;
 		gEdgeFontAndSize = kDefEdgeFontAndSize;
+		gOptionNoViewer  = false;
 	}
 
 }

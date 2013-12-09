@@ -394,6 +394,8 @@ public class Builder {
 				itsOptions.gOptionDoReport = true;
 			else if ( "/nodot".equals ( incl ) )
 				itsOptions.gOptionDOT = false;
+			else if ( "/noview".equals ( incl ) )
+				itsOptions.gOptionNoViewer = true;
 			else if ( "/dmi".equals ( incl ) )
 				itsOptions.gOptionDMI = true;
 			else if ( "/obfuscate".equals ( incl ) )

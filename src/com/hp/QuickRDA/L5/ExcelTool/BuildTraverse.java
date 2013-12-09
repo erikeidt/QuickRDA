@@ -118,8 +118,10 @@ public class BuildTraverse {
 				prefix = buildTab.GetValue ( isBuildTableV2 ? 1 : buildTab.RowLast (), ci );
 			}
 
+			IGeneratorPlugin.Viewer vx;
 			IGeneratorPlugin.SingleBatch sb = (doAll && (buildTab.ColLast () - ci1 + 1 > 1)) ? IGeneratorPlugin.SingleBatch.Batch : IGeneratorPlugin.SingleBatch.Single;
-			IGeneratorPlugin.Viewer vx = zgrv ? IGeneratorPlugin.Viewer.UseAlternateViewer : IGeneratorPlugin.Viewer.UseDefaultViewer;
+			if (bldr.itsOptions.gOptionNoViewer)  vx = IGeneratorPlugin.Viewer.NoViewer;
+			else  vx = zgrv ? IGeneratorPlugin.Viewer.UseAlternateViewer : IGeneratorPlugin.Viewer.UseDefaultViewer;
 			IGeneratorPlugin.GenerationInfo genInfo = new IGeneratorPlugin.GenerationInfo ( bldr, dv.vw, dv.vwGray, sb, ci == ci1, vx );
 			genInfo.SetStrings ( filePath, prefix, ".txt", prefix, Start.getQuickRDAVersionNumber (), Start.gQuickRDATEMPPath, Start.gLinkbackPath );
 
