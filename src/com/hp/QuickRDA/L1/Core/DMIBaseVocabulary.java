@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 package com.hp.QuickRDA.L1.Core;
 
+
 public class DMIBaseVocabulary {
 
 	public DMIElem	gConcept;
@@ -131,6 +132,7 @@ public class DMIBaseVocabulary {
 	//public DMIElem	gIsCRUDService;
 
 	public void setBuiltIn ( DMIElem m, int ix ) {
+	//	lang.msgln ( "setBI " + ix );
 		switch ( ix ) {
 		case 1 :
 			gConcept = m;

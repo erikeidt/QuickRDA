@@ -94,7 +94,7 @@ public class Dropdowns {
 		TableReader headerTab = new TableReader ( hdrR, SourceUnitReader.kTableToFirstRowOffset, TableReader.FirstAllRestVisibleByFirst | TableReader.TrackRows );
 		TableReader bodyTab = new TableReader ( SourceUnitReader.kTableToFirstRowOffset + 1, hdrR, TableReader.VisibleCellsOnly );
 		int cxc = hdrR.Columns ().Count ();
-		Start.checkForShutDown ();
+		
 		for ( int cx = 1; cx <= cxc; cx++ )
 			generateDropdownsForColumn ( wks, headerTab, bodyTab, cx, inclDomainModelItems, inclUnderlyingMetaModelItems, bldr, dmvw );
 	}

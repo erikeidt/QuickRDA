@@ -74,6 +74,7 @@ public class BuildTraverse {
 		}
 
 		Application.StatusBar ( "Done." );
+
 	}
 
 	private static void traverseInfoTable ( String filePath, String filePrefixIn, Range qgs, int crq, boolean zgrv, boolean dropdowns, boolean inclDomainModelItems, boolean inclUnderlyingMetaModelItems ) {
@@ -97,8 +98,19 @@ public class BuildTraverse {
 				;
 			else
 				break;
-
+	
+			
 			boolean isBuildTableV2 = buildTab.GetValue ( 1, 1 ).startsWith ( "!" );
+			String prefix;
+			if ( zgrv || dropdowns ) {
+				prefix = filePrefixIn;
+			} else {
+				// prefix = qgs.Cells(qgs.Rows().Count(), ci).Value().trim();
+				prefix = buildTab.GetValue ( isBuildTableV2 ? 1 : buildTab.RowLast (), ci );
+			}
+			
+			Start.openLogFile( filePath + "\\" + prefix + "_log.txt", false);
+			
 			Builder bldr = new Builder ();
 
 			Application.ActiveWorkbook.Activate ();
@@ -110,13 +122,7 @@ public class BuildTraverse {
 
 			Builder.DualView dv = bldr.build ( filePath, buildTab, isBuildTableV2, ci, sel, dropdowns );
 
-			String prefix;
-			if ( zgrv || dropdowns ) {
-				prefix = filePrefixIn;
-			} else {
-				// prefix = qgs.Cells(qgs.Rows().Count(), ci).Value().trim();
-				prefix = buildTab.GetValue ( isBuildTableV2 ? 1 : buildTab.RowLast (), ci );
-			}
+
 
 			IGeneratorPlugin.Viewer vx;
 			IGeneratorPlugin.SingleBatch sb = (doAll && (buildTab.ColLast () - ci1 + 1 > 1)) ? IGeneratorPlugin.SingleBatch.Batch : IGeneratorPlugin.SingleBatch.Single;
@@ -151,12 +157,14 @@ public class BuildTraverse {
 				// IGeneratorPlugin igp = GeneratorPluginFinder.findPlugin (cmd, IGeneratorPlugin.class);
 				IGeneratorPlugin igp = PluginFinder.findGeneratorPlugin ( cmd );
 				if ( igp != null ) {
-					System.out.println("Running Plugin" + cmd);
+				lang.msgln("Running Plugin: " + cmd);
 					@SuppressWarnings("unused")
 					String status = igp.generate ( genInfo, cmd );
 				}
 			}
-
+			
+			Start.closeLogFile();
+			
 			if ( !doAll )
 				break;
 			ci = ci + 1;

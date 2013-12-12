@@ -28,6 +28,7 @@ import java.util.List;
 
 import com.hp.QuickRDA.L0.lang.ISet;
 import com.hp.QuickRDA.L0.lang.TextFile;
+import com.hp.QuickRDA.L0.lang.lang;
 import com.hp.QuickRDA.L1.Core.DMIElem;
 import com.hp.QuickRDA.L1.Core.DMIView;
 import com.hp.QuickRDA.L2.Names.NameUtilities;
@@ -69,7 +70,7 @@ public class XMLGenerator implements IGeneratorPlugin {
 	@Override
 	public String generate(GenerationInfo genInfo, String cmd) {
 
-		System.out.print("Executing " + cmd + " ... ");
+		lang.msg("Executing " + cmd + " ... ");
 		if (genInfo.itsFilePath != null) {
 			processArgs(cmd);
 
@@ -91,10 +92,10 @@ public class XMLGenerator implements IGeneratorPlugin {
 				TextFile.closeTheFile(ps);
 			} catch (Exception e) {
 				String file = filePath + "\\" + filePrefix + fileSuffix;
-				System.err.println("Error creating file " + file + ": " + e.getCause());
+				lang.errMsg( "Error creating file " + file + ": " + e.getCause() );
 			}
 		}
-		System.out.println("Done.");
+		lang.msgln( "Done." );
 		return new String();
 	}
 	

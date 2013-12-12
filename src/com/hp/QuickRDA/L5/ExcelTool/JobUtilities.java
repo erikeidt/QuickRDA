@@ -21,12 +21,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 package com.hp.QuickRDA.L5.ExcelTool;
 
- import java.lang.ProcessBuilder;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.lang.ProcessBuilder;
+
+import com.hp.QuickRDA.L0.lang.lang;
 
 public class JobUtilities {
 
 	public static void startBatchJob ( String filePath, String filePrefix, String fileSuffix, boolean view, boolean zgrv ) {
 		//Run batch file to generate .svg and bring up viewer (browser)
+		BufferedReader batout;
+		Process batproc;
 		String prgName = "\\StartBatchJob.bat";
 		if ( view ) {
 			if ( zgrv )
@@ -44,72 +51,20 @@ public class JobUtilities {
 		//	String userInput = console.readLine();
 			
 			// Runtime.getRuntime().exec(command);
-			new ProcessBuilder ( prg, arg ).start ();
-		} catch ( Exception e ) {}
-	}
-
-	/*
-	public static boolean RefreshViewer(Variant processID) {
-		boolean OK;
-		OK = false;
-
-		String wkbName;
-		wkbName = ActiveWorkbook.Name;
-		On Error GoTo 9999;
-
-		//this won't help...
-		//Application.ScreenUpdating = false
-
-		AppActivate "ZGRViewer"; //processID
-		SendKeys "^{r}";
-		AppActivate wkbName;
-		OK = true;
-
-	9999:;
-		//Application.ScreenUpdating = true
-		RefreshViewer = OK;
-	}
-
-	public static Variant StartZGRViewer(String fullPath) {
-		String wkbName;
-		wkbName = ActiveWorkbook.Name;
-		Variant processID;
-		processID = 0;
-		String ff;
-		//ff = "cmd /c start """ + gAppInstallPath + "\zgrviewer-0.9.0-SNAPSHOT.jar"""
-		//ff = "cmd /c ""start E:\Install\ZVTM\(dontbackup)\svn\zgrviewer\trunk\target\zgrviewer-0.9.0-SNAPSHOT.jar"""
-		ff = """" + gAppInstallPath + "\StartZGRViewer.bat"" """ + fullPath + """";
-		processID = Shell(ff, vbReadOnly);
-		//no longer needed to send keys to open the text file, its passed as a parameter
-		if ( false ) {
-	T2:     Sleep 3;
-			On Error GoTo E1;
-			AppActivate "ZGRViewer";
-			SendKeys "^{d}";
-			Sleep 1;
-			SendKeys gQuickRDATEMPPath + "\RDAWB.txt";
-			Sleep 1;
-			SendKeys Chr(13);
-			Sleep 2;
-			AppActivate wkbName;
+			lang.msgln("BatchJob:  starting " + prg + " " + arg);
+			final ProcessBuilder bat = new ProcessBuilder ( prg, arg );
+			bat.redirectErrorStream(true); // only want to have one stream to deal with
+			batproc = bat.start();
+			batout  = new BufferedReader(new InputStreamReader(batproc.getInputStream ()));
+			while (true) {
+						String mess = batout.readLine ();
+						if (mess != null) lang.msgln ( mess );
+						else break;
 			}
-		GoTo 9999;
-
-	E1: Resume R1;
-	R1: On Error GoTo 9999;
-		GoTo T2;
-
-	9999:;
-		StartZGRViewer = processID;
+			lang.msgln("BatchJob: done.");
+		} catch ( Exception e ) {
+			lang.errMsg ( "Exception in bat proc starter: " + e.getMessage () );
+		}
 	}
-
-	public static void Sleep(int s) {
-		int n;
-		n = (Format(Time, "ss") + s) Mod 60;
-		Do Until Format(Time, "ss") = n;
-			DoEvents;
-		Loop;
-	}
-	*/
 
 }

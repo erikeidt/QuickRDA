@@ -27,11 +27,14 @@ import com.hp.QuickRDA.L0.lang.IComparator;
 import com.hp.QuickRDA.L0.lang.ISet;
 import com.hp.QuickRDA.L0.lang.TextFile;
 import com.hp.QuickRDA.L0.lang.XSetList;
+import com.hp.QuickRDA.L0.lang.lang;
+import com.hp.QuickRDA.L1.Core.DMIBaseVocabulary;
 import com.hp.QuickRDA.L1.Core.DMIElem;
 import com.hp.QuickRDA.L1.Core.DMIGraph;
 import com.hp.QuickRDA.L1.Core.DMISubgraph;
 import com.hp.QuickRDA.L1.Core.DMIView;
 import com.hp.QuickRDA.L2.Names.NameUtilities;
+import com.hp.QuickRDA.L5.ExcelTool.Start;
 
 // QuickRDA plugin for generating a Data Dictionary file from the visible nodes in the tree.
 
@@ -40,11 +43,13 @@ public class DictGenerator implements IGeneratorPlugin {
 	private ISet<Node>    itsNodes;
 	private ISet<DMIElem> itsStatements;
 	private ISet<DMIElem> itsElements;
+	public DMIBaseVocabulary itsBaseVocab;
 	private DMIGraph itsGraph;
 	private PrintStream ps;
 	private String version;
 	private static DictComparator dictComparator = new DictComparator();
-					
+	private DictReasoner dictReasoner = new DictReasoner();
+	
 	@Override
 	public String generate(GenerationInfo genInfo, String cmd) {
 		if (genInfo.itsFilePath != null) {
@@ -55,17 +60,22 @@ public class DictGenerator implements IGeneratorPlugin {
 			String fileSuffix = ".htm";
 			String fileName   = filePath + "\\" + filePrefix + fileSuffix;
 			itsGraph = genInfo.itsGraph;
+			itsBaseVocab = genInfo.itsBuilder.itsBaseVocab;
 
 			try {
 				ps = TextFile.openTheFileForCreateThrowing(filePath, filePrefix, fileSuffix);
 			} catch (Exception e) {
-				System.err.println("Error creating file " + fileName + ": " + e.getCause());
+				lang.errMsg("Error creating file " + fileName + ": " + e.getCause());
+				e.printStackTrace ( Start.gErrLogFile );
+				return null;
 			}
 
 			try {
 				generateDictionary(genInfo.itsFocusView);
 			} catch (Exception e) {
-				System.err.println("Exception in generateDictionary: " + e.getCause());
+				lang.errMsg ( "Exception in generateDictionary: " + e.getCause() );
+				e.printStackTrace ( Start.gErrLogFile );
+				return null;
 			}
 
 			printHead(genInfo.itsTitle);
@@ -74,7 +84,7 @@ public class DictGenerator implements IGeneratorPlugin {
 			printTail();
 			TextFile.closeTheFile(ps);
 		}
-		System.out.println("QUickRDA Data Dictionary Generator done.");
+		lang.msgln("QUickRDA Data Dictionary Generator done.");
 		return ""; 
 	}
 
@@ -104,6 +114,9 @@ public class DictGenerator implements IGeneratorPlugin {
 				}
 			}
 		}
+		
+		dictReasoner.reasoner(); // add attach and group based relationships
+		
 		// sort the nodes
 		itsNodes.sortList ( dictComparator );
 	}
@@ -182,6 +195,57 @@ public class DictGenerator implements IGeneratorPlugin {
 		}
 	}
 	
+	private class DictReasoner {
+
+		ISet<DMIElem> extraElements;
+
+		private DictReasoner() {
+			extraElements = new XSetList<DMIElem> ( XSetList.AsSet, XSetList.HashOnDemand );
+		}
+
+		private void addStatements(DMIElem n, ISet<DMIElem> r, DMIElem vb, String ex) {
+			//			loop over statements adding to relations to output.
+			for (int k=0; k < r.size(); k++) {
+				DMIElem s = r.get ( k );
+				DMIElem o = s.itsSubject.equals(n) ?  s.itsObject : s.itsSubject;
+				findNode(n).itsProperties.add ( s );
+				findNode(o).itsProperties.add ( s );
+			} 
+			lang.errMsg ("\t\t" + r.size() + " " + getName(vb) + " properties added " + ex );
+		}
+		
+		private void augment( DMIElem s, ISet<DMIElem> eels, DMIElem vb ) {
+			for (int j=0; j < eels.size(); j++) {
+				DMIElem n = eels.get ( j );
+				lang.errMsg ( "\tAugment " + getName(n) );
+				if ( !itsElements.contains ( n )  && !extraElements.contains(n)) {
+					extraElements.add ( n );
+					itsNodes.add ( new Node(n) );
+					lang.errMsg ( "\t\tadded..");
+				}
+		
+				addStatements(n, n.findStatementsFromUsedAsObjectBySubjectAndVerb ( s, vb, null ), vb , "by subject and verb");
+				addStatements(n, n.findStatementsFromUsedAsSubjectByVerbAndObject ( vb, s, null ), vb , "by verb and object");
+			}
+		}
+
+		public void reasoner () {
+
+			for (int i=0; i<itsElements.size (); i++) {
+				DMIElem n = itsElements.get ( i );
+				lang.errMsg ( "Considering " + getName(n) );
+	
+				augment( n, n.attachedSet(),   itsBaseVocab.gAttaches );
+				augment( n, n.attachedToSet(), itsBaseVocab.gIsAttachedTo );
+				augment( n, n.groupedSet (),   itsBaseVocab.gGroups );
+				augment( n, n.groupedToSet(),  itsBaseVocab.gIsInGroup );
+			}
+		
+		for (int i=0; i<extraElements.size(); i++) itsElements.add(extraElements.get(i));
+		
+		}
+	}
+
 	private DMIElem getType(DMIElem n) {
 		if (null !=  n.itsDeclaredTypeList && n.itsDeclaredTypeList.size ()>0)
 			return n.itsDeclaredTypeList.get ( 0 );
@@ -197,6 +261,15 @@ public class DictGenerator implements IGeneratorPlugin {
 	private String getName(DMIElem n) {
 		String res = NameUtilities.getMCText(n);
 		return (res == null) ? "" : res;
+	}
+	
+	private Node findNode( DMIElem m) {
+		Node n = null;
+		for (int i=0; i < itsNodes.size (); i++) {
+			n = itsNodes.get ( i );
+			if (m.equals ( n.itsElement )) break;
+		}
+		return n;
 	}
 	
 	public void printNodes () {
@@ -218,6 +291,7 @@ public class DictGenerator implements IGeneratorPlugin {
 			printElement(n);
 		}
 	}
+	
 	
 	public void printElement(Node n) {
 		RelComparator relComparator = new RelComparator();

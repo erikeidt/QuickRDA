@@ -50,7 +50,7 @@ public class DOTGenerator implements IGeneratorPlugin {
 			}
 			else {
 				lang.errMsg ( "Error creating output file in location: " + genInfo.itsFilePath );
-				System.err.println ( e.getLocalizedMessage () );
+				lang.errMsg ( e.getLocalizedMessage () );
 			}
 			try {
 				genDir = genInfo.itsTempPath;
@@ -58,7 +58,7 @@ public class DOTGenerator implements IGeneratorPlugin {
 				if ( !net )
 					lang.errMsg ( "Temp directory being used instead: " + genInfo.itsTempPath );
 			} catch ( Exception e2 ) {
-				e2.printStackTrace ( System.err );
+				e2.printStackTrace ( Start.gErrLogFile );
 				lang.errMsg ( "Could not use temp directory." );
 				return null;
 			}

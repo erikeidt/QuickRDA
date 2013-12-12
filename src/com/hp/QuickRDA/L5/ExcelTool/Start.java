@@ -21,7 +21,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 package com.hp.QuickRDA.L5.ExcelTool;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 // import java.text.DecimalFormat;
@@ -32,13 +35,15 @@ import com.hp.QuickRDA.L4.Build.*;
 
 public class Start {
 
-	private static String			jVers		= "4.5.3";		// QuickRDA.jar & installation version
+	private static String			jVers		= "4.5.4";		// QuickRDA.jar & installation version
 	private static String			xptXLVers	= "4.4.5";		// The expected Excel Add-in version
 
-	// private static DecimalFormat	vFormat		= new DecimalFormat ("#.##");
+	private static String            gLogFileName;
 
+	// private static DecimalFormat	vFormat		= new DecimalFormat ("#.##");
+	public static PrintStream       gLogFile;
+	public static PrintStream       gErrLogFile;
 	public static volatile boolean	gInitialized;
-	public static volatile boolean	gShutDown	= false;
 	public static String			gMMWKBName;
 	public static Workbook			gMMWKB;
 	public static final String		gMMWKSName	= "MetaModel";
@@ -46,8 +51,7 @@ public class Start {
 	public static String			gAppInstallPath;
 	public static String			gQuickRDATEMPPath;
 	public static String			gLinkbackPath;
-	public static JarProcess		gMonitor;
-
+	
 	public static boolean initialize ( String path, String mmwkb ) {
 		if ( gInitialized )
 			return true;
@@ -70,20 +74,46 @@ public class Start {
 			throw new RuntimeException ( "Could not locate MetaModel worksheet.;" );
 		gMMWKB.Activate ();
 		gInitialized = true;
+		
 		//		gMonitor = new JarProcess(); 
 		//		gMonitor.start();
-
+		
+		gLogFile = System.out;
+		gErrLogFile = System.err;
+		
 		return gInitialized;
 	}
+	
+	public static void openLogFile ( String fileName, Boolean append) {
 
-	private static List<WorkbookReference>	gWorkOpenedWorkbooks	= new ArrayList<WorkbookReference> ();
-
-	public static void checkForShutDown () {
-
-		if ( gShutDown )
-			Start.AbEnd ( "Aborting by user request..." );
+		PrintStream l;
+//		if (!"".equals ( fileName )) return;
+		closeLogFile(); // always close previous
+		try {
+			 l = new PrintStream ( new BufferedOutputStream (new FileOutputStream ( fileName, append )), true);
+			 gLogFile     = l;
+			 gErrLogFile  = l;
+			 gLogFileName = fileName;
+		} catch ( Exception e ) {}
 	}
 
+	public static void reOpenLogFile () {
+		openLogFile(Start.gLogFileName, true);
+	}
+	
+	public static void closeLogFile() {
+		PrintStream l;
+		if (gLogFile.equals ( System.out )) return;
+		if (gErrLogFile.equals ( System.err )) return; // should never happen
+		l = gLogFile;
+		gLogFile = System.out;
+		gErrLogFile = System.err;
+		l.close();
+	}
+	
+	private static List<WorkbookReference>	gWorkOpenedWorkbooks	= new ArrayList<WorkbookReference> ();
+
+	
 	public static void track ( WorkbookReference wkbRef ) {
 		gWorkOpenedWorkbooks.add ( wkbRef );
 	}
@@ -91,7 +121,7 @@ public class Start {
 	public static void AbEnd ( String msg ) {
 		lang.errMsg ( msg );
 		release ();
-		System.exit ( 1 );
+		System.exit ( 0 );
 	}
 
 	public static void release () {
@@ -120,6 +150,7 @@ public class Start {
 			Application.Release ();
 		} catch ( Exception e ) {}
 		gInitialized = false; // signal jar monitor process to terminate
+		closeLogFile();
 	}
 
 	//File Utilities
@@ -165,11 +196,11 @@ public class Start {
 	}
 
 	public static void a5_ReportVersion () {
-		lang.errMsg ( "\r\n*** QuickRDA Version Info ***\r\n" );
-		lang.errMsg ( "\tThe Java component, QuickRDA.jar, has version:\t" + jVers );
-		lang.errMsg ( "\tThis .jar is expecting Excel Add-in version:\t" + xptXLVers );
-		lang.errMsg ( "\r\n\tThe actual Excel Add-in, QuickRDA.xlam, is:\t" + getQuickRDAExcelVersionNumber () );
-		lang.errMsg ( "\r\n\r\n\tBuilds will show version:\t\t\t" + getQuickRDAVersionNumber () + "\r\n\r\n" );
+		lang.msgln ( "\r\n*** QuickRDA Version Info ***\r\n" );
+		lang.msgln ( "\tThe Java component, QuickRDA.jar, has version:\t" + jVers );
+		lang.msgln ( "\tThis .jar is expecting Excel Add-in version:\t" + xptXLVers );
+		lang.msgln ( "\r\n\tThe actual Excel Add-in, QuickRDA.xlam, is:\t" + getQuickRDAExcelVersionNumber () );
+		lang.msgln ( "\r\n\r\n\tBuilds will show version:\t\t\t" + getQuickRDAVersionNumber () + "\r\n\r\n" );
 	}
 
 	public static String getQuickRDAVersionNumber () {
@@ -252,7 +283,7 @@ public class Start {
 					}
 				}
 			} catch ( Exception e ) {
-				e.printStackTrace ();
+				e.printStackTrace (Start.gErrLogFile);
 			}
 		}
 

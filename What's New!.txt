@@ -1,3 +1,13 @@
+===QuickRDA version 4.5.4=== 12/12/2013 dpenklert@gmail.com
+--Minor Enhancements--
+	Removed all console output, now goes into log file to
+	support batch operations. Now no error exit even if
+	QuickRDA error messages have been sent to log. Pause
+	window only on crash.
+	Removed docs from bits build for smaller size.
+	Dictionary generator now includes Attaches and Groups
+	relationships.
+	
 ===QuickRDA version 4.5.3=== 12/06/2013 dpenklert@gmail.com
 --Minor Enhancements--
 	Added /noview build column option to suppress svg display

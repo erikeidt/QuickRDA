@@ -24,6 +24,8 @@ package com.hp.QuickRDA.L0.lang;
 import java.io.BufferedReader;
 import java.io.IOException;
 
+import com.hp.QuickRDA.L5.ExcelTool.Start;
+
 public class TokenReader {
 	public BufferedReader	itsReader;
 	public String			itsName;
@@ -93,7 +95,7 @@ public class TokenReader {
 					itsOffset++;
 			}
 		} catch ( IOException e ) {
-			e.printStackTrace ();
+			e.printStackTrace (Start.gErrLogFile);
 		}
 	}
 
@@ -120,7 +122,7 @@ public class TokenReader {
 					itsOffset++;
 			}
 		} catch ( IOException e ) {
-			e.printStackTrace ();
+			e.printStackTrace (Start.gErrLogFile);
 		}
 	}
 
@@ -166,7 +168,7 @@ public class TokenReader {
 					itsOffset++;
 			}
 		} catch ( IOException e ) {
-			e.printStackTrace ();
+			e.printStackTrace (Start.gErrLogFile);
 		}
 		return c;
 
@@ -206,7 +208,7 @@ public class TokenReader {
 					break;
 			}
 		} catch ( IOException e ) {
-			e.printStackTrace ();
+			e.printStackTrace (Start.gErrLogFile);
 		}
 		return c;
 	}

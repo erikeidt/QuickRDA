@@ -22,7 +22,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 package com.hp.QuickRDA.L5.ExcelTool;
 
 import com.hp.JEB.*;
-import com.hp.QuickRDA.L0.lang.*;
 // import com.hp.QuickRDA.Trial1.*;
 
 public class QuickRDAMain {
@@ -63,8 +62,10 @@ public class QuickRDAMain {
 				Start.initialize ( args [ 1 ], args [ 2 ] );
 			} catch ( Exception e ) {
 				e.printStackTrace ();
+				return 1;
 			}
 			Start.a5_ReportVersion ();
+			return 1;
 		} else {
 			Start.initialize ( args [ 1 ], args [ 2 ] );
 
@@ -87,7 +88,7 @@ public class QuickRDAMain {
 				// Trial.LiveTrial ();
 			}
 		}
-		return lang.getMsgCount ();
+		return 0;
 	}
 
 }

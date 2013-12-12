@@ -167,6 +167,11 @@ public class Builder {
 		itsNamedPatternMgr = new NamedPatternManager ();
 
 	}
+	
+	private static void userMessage( String s ) {
+		Application.StatusBar ( s );	
+		lang.msgln ( s );
+	}
 
 	public DualView buildFinish () {
 		// System.out.println("ssread");
@@ -193,21 +198,20 @@ public class Builder {
 		if ( sg.isVisible )
 			itsConceptMgr.trackAdditionsInView ( vw );
 
-		Application.StatusBar ( "Inferencing..." );
+		userMessage ( "Inferencing..." );
 
 		Begetting.generative_Inferencing ( vw, this );
 
 		vwGray = null;
 
-		Application.StatusBar ( "Filtration & Abstraction..." );
-
+		userMessage ( "Filtration & Abstraction..." );
 		vwGray = runFilters ( vw, vwGray );
 
 		// prefer view tracking instead of this enmass addition; better granularity this way
 		// vw.AddSubgraph sg 'Pick up generated inferences & abstractions
 
 		if ( itsOptions.gOptionContainment ) {
-			Application.StatusBar ( "Containment..." );
+			userMessage ( "Containment..." );
 			Containment.containmentInferencing ( itsBaseVocab, itsOptions, vw );
 		}
 
@@ -215,7 +219,7 @@ public class Builder {
 
 		itsConceptMgr.trackAdditionsInView ( null );
 
-		Application.StatusBar ( "Generating..." );
+		userMessage ( "Generating..." );
 
 		return new DualView ( vw, vwGray );
 	}
@@ -252,7 +256,6 @@ public class Builder {
 		// for ( int i = 0; i < itsFilters.length; i++ ) {
 		//	String f = itsFilters [ i ];
 		for ( String f : itsFilters ) {
-			Start.checkForShutDown ();
 			if ( "/subresp".equals ( f ) )
 				Abstraction.promoteSubResponsibilities ( itsBaseVocab, itsConceptMgr, itsOptions.gOptionAutoHide, vw );
 			else if ( "/resp".equals ( f ) )
@@ -274,7 +277,7 @@ public class Builder {
 					if ( f.startsWith ( abs ) )
 						Abstraction.performAbstraction ( f.substring ( abs.length () ), itsConceptMgr, itsOptions.gOptionAutoHide, vw, false );
 					else {
-						System.out.println ( "Running filter: " + f + "..." );
+						lang.msgln ( "Running filter: " + f + "..." );
 						vwGray = Filtration.runFilter ( f, itsGraph, itsConceptMgr, itsNamedPatternMgr, vw, vwGray, fo );
 					}
 				}
@@ -356,7 +359,8 @@ public class Builder {
 			else if ( "/atresp".equals ( incl ) ) {
 				DMISubgraph sg = itsConceptMgr.setDefaultSubgraph ( itsConceptMgr.itsInvisiblexSG );
 				// itsBaseVocab.gAssignedTo.itsDiagrammingInfo.itsContainment = "attach";
-				itsConceptMgr.enterStatement ( itsBaseVocab.gAssignedTo, itsBaseVocab.gSubclassOf, itsBaseVocab.gIsAttachedTo, true );
+				DMIElem a = itsConceptMgr.findConcept ( "Is Assigned To", itsBaseVocab.gConcept );
+				itsConceptMgr.enterStatement ( a, itsBaseVocab.gSubclassOf, itsBaseVocab.gIsAttachedTo, true );
 				itsConceptMgr.setDefaultSubgraph ( sg );
 			}
 			else if ( "/atprov".equals ( incl ) ) {
@@ -638,11 +642,11 @@ public class Builder {
 			Range sutR = wks.GetSourceUnitTable ();
 			if ( sutR != null ) {
 				itsConceptMgr.setProvenanceInfo ( wks.Parent ().Name (), wks.Name (), sutR.Row () );
-				Application.StatusBar ( "Working on workbook: " + wks.Parent ().Name () + ", worksheet: " + wks.Name () + " DataEntry " + mVis );
+				userMessage ( "Working on workbook: " + wks.Parent ().Name () + ", worksheet: " + wks.Name () + " DataEntry " + mVis );
 				buildGraphFromRangeObject ( wkb, wks, sutR, highlightR, columnExclusions );
 			}
 			else {
-				Application.StatusBar ( "Working on workbook: " + wks.Parent ().Name () + ", worksheet: " + wks.Name () + " Metamodel " + mVis );
+				userMessage ( "Working on workbook: " + wks.Parent ().Name () + ", worksheet: " + wks.Name () + " Metamodel " + mVis );
 				buildMMfromWorkSheet ( wks, mmvis );
 			}
 		}
@@ -699,7 +703,7 @@ public class Builder {
 		try {
 			uoi.importJSONDMI ( filePath, fileName, "", fileName );
 		} catch ( Exception e ) {
-			e.printStackTrace ();
+			e.printStackTrace (Start.gErrLogFile);
 			return;
 		}
 		DMIImport di = new DMIImport ();

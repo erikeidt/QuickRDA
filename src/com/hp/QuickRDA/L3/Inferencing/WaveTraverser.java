@@ -53,7 +53,6 @@ public class WaveTraverser {
 	}
 
 	public ISet<DMIElem> traverse ( ISet<DMIElem> inNodes, BoundFork inPatterns, boolean infer, boolean loop, ISet<DMIElem> suggested ) {
-		System.out.println("Trav-");
 		if ( infer ) {
 			ISet<DMIElem> ans = new XSetList<DMIElem> ( XSetList.AsSet );
 			ISet<DMIElem> xV = new XSetList<DMIElem> ( XSetList.AsSet );
@@ -106,7 +105,6 @@ public class WaveTraverser {
 
 		for ( ;; ) {
 			++iterCnt;
-			System.out.println("Trav+");
 			if ( (Tracing.gTraceSet & Tracing.TraceFrame) != 0 )
 				Tracing.gTraceFile.println ( "---- Iteration " + iterCnt + " ----" );
 
@@ -132,7 +130,6 @@ public class WaveTraverser {
 				if ( fr.succcessPathComplete () ) {
 					if ( fr.couldBeRejected () ) {
 						if ( fr.markAsSuccessRoot () ) {
-							System.out.println("Trav1");
 							if ( (Tracing.gTraceSet & Tracing.TraceWave) != 0 ) {
 								Tracing.gTraceFile.println ( "$$$ Adding frame root: " );
 								fr.traceOut ();
@@ -168,7 +165,6 @@ public class WaveTraverser {
 					if ( fr.rejected () ) {
 						lbf.clear ( i );
 						BoundFrame successRoot = fr.getSuccessRoot ();
-						System.out.println("Trav2");
 						if ( successRoot != null )
 							nonRejectedCandidates.remove ( successRoot );
 
@@ -215,7 +211,6 @@ public class WaveTraverser {
 				DMIElem m = currLinks.get ( i );
 				if ( (Tracing.gTraceSet & Tracing.TraceFrame) != 0 ) {
 					Tracing.gTraceFile.println ( "visiting: " + m.itsIndex );
-					System.out.println("TravB");
 				}
 				// all patterns have to see all statements, 
 				//  even newly generated patterns from current generation

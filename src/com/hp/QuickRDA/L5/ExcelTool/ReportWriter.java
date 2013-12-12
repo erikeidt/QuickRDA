@@ -372,7 +372,7 @@ public class ReportWriter {
 			r.SetFormula ( f );
 		} catch ( Exception e ) {
 			lang.errMsg ( "Could not set formula " + f + " on Cell " + r.Address () );
-			// e.printStackTrace();
+			// e.printStackTrace(Start.gErrLogFile);
 			// r.SetValue("x"&f);
 		}
 	}

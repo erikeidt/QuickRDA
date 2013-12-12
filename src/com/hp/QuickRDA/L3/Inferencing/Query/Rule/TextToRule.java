@@ -269,9 +269,9 @@ public class TextToRule {
 				reduceUnop ( op, operatorStack, operandStack );
 				continue;
 			}
-			if ( op == '%' && onRight == '%' ) // right associativity for operator *
+			if ( op == '%' && (onRight == '%' || onRight == '&' )) // right associativity for operator *
 				break;
-			if ( op == '&' && onRight == '|' )
+			if ( op == '|' && (onRight == '&' || onRight == '%' ))
 				break;
 			operatorStack.pop ();
 			reduceBinOp ( op, operatorStack, operandStack );
