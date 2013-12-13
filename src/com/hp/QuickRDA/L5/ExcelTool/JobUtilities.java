@@ -46,17 +46,13 @@ public class JobUtilities {
 		String arg =  "\"" + filePath + "\\" + filePrefix + "\"";
 
 		try {
-		//	String command = prg + " " + arg;
-		//	System.out.println("startBatchJob: <" + command + ">");
-		//	String userInput = console.readLine();
-			
-			// Runtime.getRuntime().exec(command);
 			lang.msgln("BatchJob:  starting " + prg + " " + arg);
 			final ProcessBuilder bat = new ProcessBuilder ( prg, arg );
 			bat.redirectErrorStream(true); // only want to have one stream to deal with
 			batproc = bat.start();
 			batout  = new BufferedReader(new InputStreamReader(batproc.getInputStream ()));
-			while (true) {
+			batproc.getOutputStream ().close(); // we don't have anything to say to him: bat pauses won't block
+			while (true) {  // read the output from bat and write it to log
 						String mess = batout.readLine ();
 						if (mess != null) lang.msgln ( mess );
 						else break;
