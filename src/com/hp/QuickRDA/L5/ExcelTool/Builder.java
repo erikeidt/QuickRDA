@@ -252,7 +252,7 @@ public class Builder {
 	}
 
 	private DMIView runFilters ( DMIView vw, DMIView vwGray ) {
-		Filtration.FilterOptions fo = new Filtration.FilterOptions ( itsOptions.gOptionReachNodeBruteForceAlog );
+		Filtration.FilterOptions fo = new Filtration.FilterOptions ( itsOptions.gOptionReachNodeBruteForceAlog, itsOptions.gOptionIgnoreUnbound );
 		// for ( int i = 0; i < itsFilters.length; i++ ) {
 		//	String f = itsFilters [ i ];
 		for ( String f : itsFilters ) {
@@ -400,6 +400,8 @@ public class Builder {
 				itsOptions.gOptionDOT = false;
 			else if ( "/noview".equals ( incl ) )
 				itsOptions.gOptionNoViewer = true;
+			else if ( "/ignoreunbound".equals ( incl ) )
+				itsOptions.gOptionIgnoreUnbound = true;
 			else if ( "/dmi".equals ( incl ) )
 				itsOptions.gOptionDMI = true;
 			else if ( "/obfuscate".equals ( incl ) )
@@ -583,7 +585,7 @@ public class Builder {
 								} else {
 									Worksheet wks = wkbRef.wkb.Worksheets ( sheetName );
 									if ( wks == null )
-										Start.AbEnd ( "Worksheet: " + sheetName + " not found in Workbook " + wkbRef.wkb.Name () + "\n\n" );
+										Start.abEnd ( "Worksheet: " + sheetName + " not found in Workbook " + wkbRef.wkb.Name () + "\n\n" );
 									else
 										buildGraphFromWorkSheet ( wkbRef.wkb, wks, sheetName, highlightR, vis, columnExclusions );
 								}

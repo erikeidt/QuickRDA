@@ -1,3 +1,17 @@
+===QuickRDA version 4.5.5=== 12/19/2013 dpenklert@gmail.com
+--Minor Enhancements--
+    Purge log file before use for sharepoint operation
+    New behaviour: fails on unbound filter parameter
+    Added new /ingroreunbound switch to build column to
+    revert to old behaviour
+    Non zero exit on log file open error
+      
+---Bug Fixes ---
+    Find nested Attaches etc relations in DictGenerator
+    Contents in dictionary not in a table
+    Hardened exception handling
+    Addded file name escaping to log file
+   
 ===QuickRDA version 4.5.4=== 12/12/2013 dpenklert@gmail.com
 --Minor Enhancements--
 	Removed all console output, now goes into log file to

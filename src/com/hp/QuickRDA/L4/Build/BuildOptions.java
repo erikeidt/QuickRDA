@@ -120,7 +120,8 @@ public class BuildOptions {
 
 	public boolean				gOptionPartialHide;
 	public boolean				gOptionDoReport;
-
+	public boolean				gOptionIgnoreUnbound;
+	
 	public static boolean		DOT0									= false;
 
 	//=== From ExportDOT ===
@@ -164,7 +165,7 @@ public class BuildOptions {
 		gOptionAttach = true;
 		gOptionGroup = true;
 		gOptionNestedGroups = true;
-
+		gOptionIgnoreUnbound = false;	
 		//Export Defaults
 		gOptionTrimDiff = true;
 		gOptionGraphDirectionTB = true;

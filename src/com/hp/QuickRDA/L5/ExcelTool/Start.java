@@ -35,7 +35,7 @@ import com.hp.QuickRDA.L4.Build.*;
 
 public class Start {
 
-	private static String			jVers		= "4.5.4";		// QuickRDA.jar & installation version
+	private static String			jVers		= "4.5.5";		// QuickRDA.jar & installation version
 	private static String			xptXLVers	= "4.4.5";		// The expected Excel Add-in version
 
 	private static String            gLogFileName;
@@ -43,6 +43,8 @@ public class Start {
 	// private static DecimalFormat	vFormat		= new DecimalFormat ("#.##");
 	public static PrintStream       gLogFile;
 	public static PrintStream       gErrLogFile;
+	public static int	            gLogFileCount = 0;
+	public static int	            gLogFileErr = 0;
 	public static volatile boolean	gInitialized;
 	public static String			gMMWKBName;
 	public static Workbook			gMMWKB;
@@ -55,7 +57,10 @@ public class Start {
 	public static boolean initialize ( String path, String mmwkb ) {
 		if ( gInitialized )
 			return true;
-
+		
+		gLogFile = System.out;
+		gErrLogFile = System.err;
+		
 		gAppInstallPath = path;
 		gQuickRDATEMPPath = getQuickRDATEMPDirectory ();
 		Tracing.setTraceFileDirectory ( gQuickRDATEMPPath );
@@ -78,31 +83,39 @@ public class Start {
 		//		gMonitor = new JarProcess(); 
 		//		gMonitor.start();
 		
-		gLogFile = System.out;
-		gErrLogFile = System.err;
 		
 		return gInitialized;
 	}
 	
 	public static void openLogFile ( String fileName, Boolean append) {
-
 		PrintStream l;
-//		if (!"".equals ( fileName )) return;
+		// Uncomment following line to force output to console
+		//		if (!"".equals ( fileName )) return;
 		closeLogFile(); // always close previous
 		try {
-			 l = new PrintStream ( new BufferedOutputStream (new FileOutputStream ( fileName, append )), true);
-			 gLogFile     = l;
-			 gErrLogFile  = l;
-			 gLogFileName = fileName;
-		} catch ( Exception e ) {}
+			File oldlog = new File(fileName);
+			oldlog.delete();
+		} 
+		catch  ( Exception e ) {}
+		try {
+			l = new PrintStream ( new BufferedOutputStream (new FileOutputStream ( fileName, append )), true);
+			gLogFile     = l;
+			gErrLogFile  = l;
+			gLogFileName = fileName;
+			gLogFileCount++;
+		} catch ( Exception e ) {
+			lang.errMsg ( "Error: Unable to open log file '" + fileName + "' " + e.getMessage ());
+			gLogFileErr++;
+		}
 	}
 
 	public static void reOpenLogFile () {
 		openLogFile(Start.gLogFileName, true);
 	}
-	
+
 	public static void closeLogFile() {
 		PrintStream l;
+		if (gLogFile.equals(null)) return;  // should never happen but due to finally does
 		if (gLogFile.equals ( System.out )) return;
 		if (gErrLogFile.equals ( System.err )) return; // should never happen
 		l = gLogFile;
@@ -117,11 +130,13 @@ public class Start {
 	public static void track ( WorkbookReference wkbRef ) {
 		gWorkOpenedWorkbooks.add ( wkbRef );
 	}
-
-	public static void AbEnd ( String msg ) {
+	
+	
+	public static void abEnd ( String msg ) {
+		Start.gErrLogFile.print ( "QuickRDA Abnormal End: ");
 		lang.errMsg ( msg );
 		release ();
-		System.exit ( 0 );
+		System.exit (  gLogFile.equals ( System.out ) ? 1 : 0 );
 	}
 
 	public static void release () {
@@ -272,7 +287,7 @@ public class Start {
 									alreadyOpen = true;
 								}
 								if ( wkb == null ) {
-									AbEnd ( "Cannot open Workbook: " + filePath + "\\" + bookName + "\n\n" );
+									abEnd ( "Cannot open Workbook: " + filePath + "\\" + bookName + "\n\n" );
 								}
 								else {
 									int newCount = Application.Workbooks ().Count ();

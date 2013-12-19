@@ -49,6 +49,8 @@ public class DictGenerator implements IGeneratorPlugin {
 	private String version;
 	private static DictComparator dictComparator = new DictComparator();
 	private DictReasoner dictReasoner = new DictReasoner();
+	private int relCount = 0;
+	private int elCount = 0;
 	
 	@Override
 	public String generate(GenerationInfo genInfo, String cmd) {
@@ -64,6 +66,7 @@ public class DictGenerator implements IGeneratorPlugin {
 
 			try {
 				ps = TextFile.openTheFileForCreateThrowing(filePath, filePrefix, fileSuffix);
+				lang.msgln ( " Opened file " + fileName );
 			} catch (Exception e) {
 				lang.errMsg("Error creating file " + fileName + ": " + e.getCause());
 				e.printStackTrace ( Start.gErrLogFile );
@@ -83,6 +86,7 @@ public class DictGenerator implements IGeneratorPlugin {
 			printNodes();
 			printTail();
 			TextFile.closeTheFile(ps);
+			lang.msgln ( " Closed file " + fileName + " " + elCount + " elments and " + relCount + " relationships generated");
 		}
 		lang.msgln("QUickRDA Data Dictionary Generator done.");
 		return ""; 
@@ -196,10 +200,13 @@ public class DictGenerator implements IGeneratorPlugin {
 	}
 	
 	private class DictReasoner {
-
+		
+		ISet<DMIElem> workingElements;
 		ISet<DMIElem> extraElements;
-
+		
 		private DictReasoner() {
+			workingElements = new XSetList<DMIElem> ( XSetList.AsSet, XSetList.HashOnDemand );
+		
 			extraElements = new XSetList<DMIElem> ( XSetList.AsSet, XSetList.HashOnDemand );
 		}
 
@@ -211,17 +218,18 @@ public class DictGenerator implements IGeneratorPlugin {
 				findNode(n).itsProperties.add ( s );
 				findNode(o).itsProperties.add ( s );
 			} 
-			lang.errMsg ("\t\t" + r.size() + " " + getName(vb) + " properties added " + ex );
+	//		lang.errMsg ("\t\t" + r.size() + " " + getName(vb) + " properties added " + ex );
 		}
 		
 		private void augment( DMIElem s, ISet<DMIElem> eels, DMIElem vb ) {
 			for (int j=0; j < eels.size(); j++) {
 				DMIElem n = eels.get ( j );
-				lang.errMsg ( "\tAugment " + getName(n) );
-				if ( !itsElements.contains ( n )  && !extraElements.contains(n)) {
+			//	lang.errMsg ( "\tAugment " + getName(n) );
+				if ( !itsElements.contains ( n ) ) {
+					itsElements.add ( n );
 					extraElements.add ( n );
 					itsNodes.add ( new Node(n) );
-					lang.errMsg ( "\t\tadded..");
+				//	lang.errMsg ( "\t\tadded..");
 				}
 		
 				addStatements(n, n.findStatementsFromUsedAsObjectBySubjectAndVerb ( s, vb, null ), vb , "by subject and verb");
@@ -230,19 +238,30 @@ public class DictGenerator implements IGeneratorPlugin {
 		}
 
 		public void reasoner () {
+			int startInd = 0;
+			for (int i=0; i<itsElements.size (); i++) workingElements.add ( itsElements.get(i) );
+			
+			while (true) {
+				for (int i=startInd; i<workingElements.size (); i++) {
+					DMIElem n = workingElements.get ( i );
+			//		lang.errMsg ( "Considering " + getName(n) );
 
-			for (int i=0; i<itsElements.size (); i++) {
-				DMIElem n = itsElements.get ( i );
-				lang.errMsg ( "Considering " + getName(n) );
-	
-				augment( n, n.attachedSet(),   itsBaseVocab.gAttaches );
-				augment( n, n.attachedToSet(), itsBaseVocab.gIsAttachedTo );
-				augment( n, n.groupedSet (),   itsBaseVocab.gGroups );
-				augment( n, n.groupedToSet(),  itsBaseVocab.gIsInGroup );
+					augment( n, n.attachedSet(),   itsBaseVocab.gAttaches );
+					augment( n, n.attachedToSet(), itsBaseVocab.gIsAttachedTo );
+					augment( n, n.groupedSet (),   itsBaseVocab.gGroups );
+					augment( n, n.groupedToSet(),  itsBaseVocab.gIsInGroup );
+				}
+				
+				if (extraElements.isEmpty ()) break;
+				
+				startInd = workingElements.size();
+				
+				for (int i=0; i<extraElements.size(); i++) {
+					workingElements.add(extraElements.get(i));
+				}
+				extraElements.clear();
+
 			}
-		
-		for (int i=0; i<extraElements.size(); i++) itsElements.add(extraElements.get(i));
-		
 		}
 	}
 
@@ -297,6 +316,7 @@ public class DictGenerator implements IGeneratorPlugin {
 		RelComparator relComparator = new RelComparator();
 		ISet<Relationship> mRelationships = new XSetList<Relationship>(XSetList.AsSet, XSetList.HashOnDemand);
 		printHeading(4,n.itsElement,n.itsName);
+		elCount++;
 		startTable("");
 		startRow();
 		ps.println("<th>Source Type</th><th>Source</th><th>Relationship</th><th>Target</th><th>Target Type</th><th>Relationship Type</th>");
@@ -306,6 +326,7 @@ public class DictGenerator implements IGeneratorPlugin {
 		}
 		mRelationships.sortList ( relComparator );
 		for (int i = 0; i < mRelationships.size (); i++ ) {
+			relCount++;
 			Relationship v = mRelationships.get ( i );
 			startRow();
 			printTableEntry( getName(v.itsSourceType) , v.itsSourceType,"");
@@ -325,23 +346,25 @@ public class DictGenerator implements IGeneratorPlugin {
 		String lastT = "";
 		int i = 0;
 		ps.println("<h3>Contents</h3>");	
-		startTable("contents");	
+	//	startTable("contents");	
 		while ( i < itsNodes.size()) {
 			n = itsNodes.get ( i++ );
 			if (!n.itsQualifierName.equals ( lastQ )) {
-				if (i > 0) endRow();
-				startRow();
-				printTableEntry(n.itsQualifierName,n.itsQualifier,"contents");
+	//			if (i > 0) endRow();
+	//			startRow();
+	//			printTableEntry(n.itsQualifierName,n.itsQualifier,"contents");
+				printEntry(n.itsQualifierName,n.itsQualifier,"");
 				lastQ = n.itsQualifierName;
 				lastT = "";
 			}
 			if (!n.itsTypeName.equals ( lastT )) {
-				printTableEntry(n.itsTypeName,n.itsType,"contents");
+//				printTableEntry(n.itsTypeName,n.itsType,"contents");
+				printEntry(n.itsTypeName,n.itsType,"");
 				lastT = n.itsTypeName;
 			}
 		}
-		if (i > 0) endRow();
-		endTable();
+//		if (i > 0) endRow();
+//		endTable();
 	}
 	
 	private void printHead(String title) {
@@ -378,6 +401,13 @@ public class DictGenerator implements IGeneratorPlugin {
 		ps.println("<tr>");
 	}
 
+	private void printEntry ( String e, DMIElem link, String mclass) {
+		String text = NameUtilities.escapeTextForHTML( e );
+		if (!"".equals ( mclass )) mclass = " class=\"" + mclass + "\"";
+		if (link != null) ps.printf("<a %s href=\"#%d\">%s</a> ",mclass,link.itsIndex, text);
+		else      ps.printf("<span %s>%s</span>",mclass,text);
+	}
+	
 	private void printTableEntry(String e, DMIElem link, String mclass) {
 		String text = NameUtilities.escapeTextForHTML( e );
 		if (!"".equals ( mclass )) mclass = " class=\"" + mclass + "\"";

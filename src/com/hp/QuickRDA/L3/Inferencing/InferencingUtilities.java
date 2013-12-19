@@ -24,14 +24,15 @@ package com.hp.QuickRDA.L3.Inferencing;
 import com.hp.QuickRDA.L0.lang.*;
 import com.hp.QuickRDA.L1.Core.*;
 import com.hp.QuickRDA.L2.Names.*;
+import com.hp.QuickRDA.L5.ExcelTool.Start;
 
 public class InferencingUtilities {
 
 	public static ISet<DMIElem> makeList ( String cmd, StringRef xx, DMIElem t, ConceptManager cm ) {
-		return makeList ( cmd, xx, t, cm, false );
+		return makeList ( cmd, xx, t, cm, false, false );
 	}
 
-	public static ISet<DMIElem> makeList ( String cmd, StringRef xx, DMIElem t, ConceptManager cm, boolean asList ) {
+	public static ISet<DMIElem> makeList ( String cmd, StringRef xx, DMIElem t, ConceptManager cm, boolean asList, boolean ignoreUnbound ) {
 		ISet<DMIElem> tV = null;
 		if ( asList )
 			tV = new XSetList<DMIElem> ();
@@ -48,7 +49,8 @@ public class InferencingUtilities {
 			if ( !"".equals ( itm ) ) {
 				m = findTarget ( itm, xx, mode, t, cm );
 				if ( m == null )
-					lang.errMsg ( "Supplied parameter (for filter/apply) was not found: '" + itm + "'; the filter will run with this parameter unbound." );
+					if (ignoreUnbound) lang.errMsg ( "Supplied parameter (for filter/apply) was not found: '" + itm + "'; the filter will run with this parameter unbound." );
+					else Start.abEnd("Supplied parameter (for filter/apply) was not found: '" + itm + "'");
 			}
 			itm = xx.str;
 

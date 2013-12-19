@@ -27,6 +27,7 @@ import java.net.URL;
 
 import com.hp.QuickRDA.Excel.StatusMessage;
 import com.hp.QuickRDA.L0.lang.*;
+import com.hp.QuickRDA.L5.ExcelTool.Start;
 
 public class PluginFinder {
 
@@ -44,7 +45,8 @@ public class PluginFinder {
 		String clsName = Strings.tSplitAfter ( cmd, xx, "," );
 
 		StatusMessage.StatusUpdate ( "Loading " + clsName + "..." );
-
+		lang.msgln ( "Loading " + clsName + "..." );
+		
 		String fpClsName = clsName;
 		if ( clsName.indexOf ( "." ) < 0 )
 			fpClsName = "com.hp.QuickRDA.Plugins." + clsName;
@@ -54,7 +56,7 @@ public class PluginFinder {
 			igp = loadJar ( fpClsName );
 
 		if ( igp == null )
-			lang.errMsg ( "Could not find or institate " + cmd );
+			lang.errMsg ( "Could not find or instantiate " + cmd );
 
 		return igp;
 	}
@@ -69,8 +71,16 @@ public class PluginFinder {
 			try {
 				// Application.StatusBar ("Creating " + cmd + "...");
 				return (IGeneratorPlugin) cls.newInstance ();
-			} catch ( Exception e ) {}
-		} catch ( NoClassDefFoundError e ) {} catch ( ClassNotFoundException e ) {} catch ( Exception e ) {}
+			} catch ( Exception e ) {
+				 e.printStackTrace ( Start.gErrLogFile );
+			}
+		} catch ( NoClassDefFoundError e ) {
+			 e.printStackTrace ( Start.gErrLogFile );
+		} catch ( ClassNotFoundException e ) {
+			 e.printStackTrace ( Start.gErrLogFile );
+		} catch ( Exception e ) {
+			 e.printStackTrace ( Start.gErrLogFile );
+		}
 		return null;
 	}
 
@@ -83,7 +93,10 @@ public class PluginFinder {
 				jarName = fpClsName.substring ( p + 1 );
 			URL [] urls = { new File ( jarName + ".jar" ).toURL () };
 			return load ( fpClsName, new URLClassLoader ( urls ) );
-		} catch ( Exception e ) {}
+		} catch ( Exception e ) {
+			lang.errMsg ( "Exception while loading plugin" );
+			lang.errMsg( e.getMessage ());
+		}
 		return null;
 	}
 

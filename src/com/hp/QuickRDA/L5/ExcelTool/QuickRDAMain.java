@@ -23,6 +23,7 @@ package com.hp.QuickRDA.L5.ExcelTool;
 
 import com.hp.JEB.*;
 // import com.hp.QuickRDA.Trial1.*;
+import com.hp.QuickRDA.L0.lang.lang;
 
 public class QuickRDAMain {
 
@@ -33,11 +34,13 @@ public class QuickRDAMain {
 		int errorLevel = -1;
 		try {
 			errorLevel = commonMain ( args, false );
+		} catch (Exception e) {
+			e.printStackTrace ( Start.gErrLogFile );
 		} finally {
 			Start.release ();
+			lang.msgln ("Cleanup" );
 		}
-		if ( errorLevel != 0 )
-			System.exit ( errorLevel );
+		if ((errorLevel != 0) && ((Start.gLogFileCount == 0) || (Start.gLogFileErr != 0))) System.exit ( errorLevel );
 	}
 
 	public static int commonMain ( String [] args, boolean dbg ) {
@@ -88,7 +91,7 @@ public class QuickRDAMain {
 				// Trial.LiveTrial ();
 			}
 		}
-		return 0;
+		return lang.getMsgCount ();
 	}
 
 }

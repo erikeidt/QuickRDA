@@ -34,9 +34,11 @@ public class Filtration {
 
 	public static class FilterOptions {
 		boolean	gOptionReachNodeBruteForceAlog;
+		boolean gOptionIgnoreUnbound;
 
-		public FilterOptions ( boolean gOptionReachNodeBruteForceAlog ) {
+		public FilterOptions ( boolean gOptionReachNodeBruteForceAlog,boolean gOptionIgnoreUnbound ) {
 			this.gOptionReachNodeBruteForceAlog = gOptionReachNodeBruteForceAlog;
+			this.gOptionIgnoreUnbound = gOptionIgnoreUnbound;
 		}
 	}
 
@@ -138,7 +140,7 @@ public class Filtration {
 
 				String pat = Strings.tSplitAfter ( cmd, xx, "," );
 				cmd = xx.str;
-				ISet<DMIElem> xV = InferencingUtilities.makeList ( cmd, xx, cm.itsBaseVocab.gConcept, cm, true );
+				ISet<DMIElem> xV = InferencingUtilities.makeList ( cmd, xx, cm.itsBaseVocab.gConcept, cm, true , options.gOptionIgnoreUnbound);
 				if ( npm instanceof NamedRuleManager ) {
 					NamedRuleManager nrm = (NamedRuleManager) npm;
 					Rule r = nrm.primeRule ( pat, xV );

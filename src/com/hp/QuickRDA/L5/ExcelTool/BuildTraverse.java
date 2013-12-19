@@ -24,6 +24,7 @@ package com.hp.QuickRDA.L5.ExcelTool;
 import com.hp.JEB.*;
 import com.hp.QuickRDA.Excel.*;
 import com.hp.QuickRDA.L0.lang.*;
+import com.hp.QuickRDA.L4.Build.BuildUtilities;
 import com.hp.QuickRDA.Plugins.*;
 
 public class BuildTraverse {
@@ -109,7 +110,7 @@ public class BuildTraverse {
 				prefix = buildTab.GetValue ( isBuildTableV2 ? 1 : buildTab.RowLast (), ci );
 			}
 			
-			Start.openLogFile( filePath + "\\" + prefix + "_log.txt", false);
+			Start.openLogFile( filePath + "\\" + BuildUtilities.escapeTextForFile (prefix) + "_log.txt", false);
 			
 			Builder bldr = new Builder ();
 
