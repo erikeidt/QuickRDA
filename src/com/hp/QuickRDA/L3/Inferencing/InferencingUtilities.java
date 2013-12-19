@@ -29,7 +29,7 @@ import com.hp.QuickRDA.L5.ExcelTool.Start;
 public class InferencingUtilities {
 
 	public static ISet<DMIElem> makeList ( String cmd, StringRef xx, DMIElem t, ConceptManager cm ) {
-		return makeList ( cmd, xx, t, cm, false, false );
+		return makeList ( cmd, xx, t, cm, false, true );
 	}
 
 	public static ISet<DMIElem> makeList ( String cmd, StringRef xx, DMIElem t, ConceptManager cm, boolean asList, boolean ignoreUnbound ) {

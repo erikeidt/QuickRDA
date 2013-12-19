@@ -1,4 +1,13 @@
-===QuickRDA version 4.5.5=== 12/19/2013 dpenkler@gmail.com
+===QuickRDA version 4.5.6=== 12/19/2013 dpenkler@gmail.com
+--Minor Enhancements--
+    Purge generated dictionary file before use for sharepoint operation
+      
+---Bug Fixes ---
+   Added more spacing to dictionary ToC
+   Abend only on unbound parameter with /filter and /applyxx, 
+   systematically ignore for selectxx, cull, unionxx, avoidxx etc 
+   
+   ===QuickRDA version 4.5.5=== 12/19/2013 dpenkler@gmail.com
 --Minor Enhancements--
     Purge log file before use for sharepoint operation
     New behaviour: fails on unbound filter parameter

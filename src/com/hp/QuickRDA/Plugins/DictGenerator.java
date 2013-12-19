@@ -21,6 +21,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 package com.hp.QuickRDA.Plugins;
 
+import java.io.File;
 import java.io.PrintStream;
 
 import com.hp.QuickRDA.L0.lang.IComparator;
@@ -63,7 +64,11 @@ public class DictGenerator implements IGeneratorPlugin {
 			String fileName   = filePath + "\\" + filePrefix + fileSuffix;
 			itsGraph = genInfo.itsGraph;
 			itsBaseVocab = genInfo.itsBuilder.itsBaseVocab;
-
+			try { // to delete the old one
+				File oldDict = new File(fileName);
+				oldDict.delete();
+			} 
+			catch  ( Exception e ) {}
 			try {
 				ps = TextFile.openTheFileForCreateThrowing(filePath, filePrefix, fileSuffix);
 				lang.msgln ( " Opened file " + fileName );
@@ -404,7 +409,7 @@ public class DictGenerator implements IGeneratorPlugin {
 	private void printEntry ( String e, DMIElem link, String mclass) {
 		String text = NameUtilities.escapeTextForHTML( e );
 		if (!"".equals ( mclass )) mclass = " class=\"" + mclass + "\"";
-		if (link != null) ps.printf("<a %s href=\"#%d\">%s</a> ",mclass,link.itsIndex, text);
+		if (link != null) ps.printf("<a %s href=\"#%d\">%s</a> &middot ",mclass,link.itsIndex, text);
 		else      ps.printf("<span %s>%s</span>",mclass,text);
 	}
 	
