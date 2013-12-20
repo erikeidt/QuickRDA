@@ -38,7 +38,6 @@ public class QuickRDAMain {
 			e.printStackTrace ( Start.gErrLogFile );
 		} finally {
 			Start.release ();
-			lang.msgln ("Cleanup" );
 		}
 		if ((errorLevel != 0) && ((Start.gLogFileCount == 0) || (Start.gLogFileErr != 0))) System.exit ( errorLevel );
 	}

@@ -46,7 +46,7 @@ public class JobUtilities {
 		String arg =  "\"" + filePath + "\\" + filePrefix + "\"";
 
 		try {
-			lang.msgln("BatchJob:  starting " + prg + " " + arg);
+			lang.msgln("Running " + prgName.substring ( 1 ) + " on " + filePrefix + "...");
 			final ProcessBuilder bat = new ProcessBuilder ( prg, arg );
 			bat.redirectErrorStream(true); // only want to have one stream to deal with
 			batproc = bat.start();
@@ -57,9 +57,9 @@ public class JobUtilities {
 						if (mess != null) lang.msgln ( mess );
 						else break;
 			}
-			lang.msgln("BatchJob: done.");
+			//lang.msgln("BatchJob: done.");
 		} catch ( Exception e ) {
-			lang.errMsg ( "Exception in bat proc starter: " + e.getMessage () );
+			lang.errMsg ( "Exception in startBatchJob: " + e.getMessage () );
 		}
 	}
 

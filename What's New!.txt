@@ -1,3 +1,11 @@
+===QuickRDA version 4.5.7=== 12/20/2013 dpenkler@gmail.com
+--Minor Enhancements--
+    Reduced log file prolixity
+      
+---Bug Fixes ---
+   Added /require= switch for filters called as subroutines
+   from /filter= invocations to avoid missing filter errors.
+   
 ===QuickRDA version 4.5.6=== 12/19/2013 dpenkler@gmail.com
 --Minor Enhancements--
     Purge generated dictionary file before use for sharepoint operation

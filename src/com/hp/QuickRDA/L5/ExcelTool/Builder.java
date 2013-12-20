@@ -299,7 +299,7 @@ public class Builder {
 			cmd = xx.str;
 			if ( "".equals ( op ) ) {
 				// do nothing
-			} else if ( "filter".equals ( op ) || "apply1".equals ( op ) || "apply*".equals ( op ) ) {
+			} else if ( "filter".equals ( op ) || "apply1".equals ( op ) || "apply*".equals ( op ) || "require".equals ( op )) {
 				pat = Strings.tSplitAfter ( cmd, xx, "," );
 			}
 			cmd = Strings.tSplitAfter ( f, xx, ";" );
@@ -309,11 +309,12 @@ public class Builder {
 	}
 
 	private void addFilter ( String f ) {
-		itsFilters.add ( f );
 		String pat = extractPattern ( f ); // get referenced query pattern
+		// lang.msgln("Found filter " + f);
+		if (!f.startsWith ( "/require" )) itsFilters.add ( f );
 		if ( !"".equals ( pat ) ) {
 			itsActivePatterns.add ( pat );
-			// System.out.println("Found pattern " + pat);
+			// lang.msgln("Found pattern " + pat);
 		}
 	}
 
@@ -639,16 +640,16 @@ public class Builder {
 		// Start.gMMWKB.Activate();
 
 		// try {
-		String mVis = (mmvis) ? "Visible" : "Invisible";
+		String mVis = (mmvis) ? "x" : "i";
 		if ( wks.Visible () == Constants.xlSheetVisible ) {
 			Range sutR = wks.GetSourceUnitTable ();
 			if ( sutR != null ) {
 				itsConceptMgr.setProvenanceInfo ( wks.Parent ().Name (), wks.Name (), sutR.Row () );
-				userMessage ( "Working on workbook: " + wks.Parent ().Name () + ", worksheet: " + wks.Name () + " DataEntry " + mVis );
+				userMessage ( "Reading '" + wks.Parent ().Name () + "' sheet '" + wks.Name () + "' as DataEntry " + mVis + "..." );
 				buildGraphFromRangeObject ( wkb, wks, sutR, highlightR, columnExclusions );
 			}
 			else {
-				userMessage ( "Working on workbook: " + wks.Parent ().Name () + ", worksheet: " + wks.Name () + " Metamodel " + mVis );
+				userMessage ( "Reading '" + wks.Parent ().Name () + "' sheet '" + wks.Name () + "' as Metamodel " + mVis + "..." );
 				buildMMfromWorkSheet ( wks, mmvis );
 			}
 		}

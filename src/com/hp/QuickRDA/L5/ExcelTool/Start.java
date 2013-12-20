@@ -35,8 +35,8 @@ import com.hp.QuickRDA.L4.Build.*;
 
 public class Start {
 
-	private static String			jVers		= "4.5.6";		// QuickRDA.jar & installation version
-	private static String			xptXLVers	= "4.4.5";		// The expected Excel Add-in version
+	protected static String			jVers		= "4.5.7";		// QuickRDA.jar & installation version
+	protected static String			xptXLVers	= "4.4.5";		// The expected Excel Add-in version
 
 	private static String            gLogFileName;
 
@@ -90,7 +90,7 @@ public class Start {
 	public static void openLogFile ( String fileName, Boolean append) {
 		PrintStream l;
 		// Uncomment following line to force output to console
-		//		if (!"".equals ( fileName )) return;
+		//	if (!"".equals ( fileName )) return;
 		closeLogFile(); // always close previous
 		try {
 			File oldlog = new File(fileName);

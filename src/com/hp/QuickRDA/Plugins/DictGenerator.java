@@ -50,7 +50,10 @@ public class DictGenerator implements IGeneratorPlugin {
 	private String version;
 	private static DictComparator dictComparator = new DictComparator();
 	private DictReasoner dictReasoner = new DictReasoner();
+
+	@SuppressWarnings("unused")
 	private int relCount = 0;
+	@SuppressWarnings("unused")
 	private int elCount = 0;
 	
 	@Override
@@ -71,7 +74,6 @@ public class DictGenerator implements IGeneratorPlugin {
 			catch  ( Exception e ) {}
 			try {
 				ps = TextFile.openTheFileForCreateThrowing(filePath, filePrefix, fileSuffix);
-				lang.msgln ( " Opened file " + fileName );
 			} catch (Exception e) {
 				lang.errMsg("Error creating file " + fileName + ": " + e.getCause());
 				e.printStackTrace ( Start.gErrLogFile );
@@ -91,9 +93,9 @@ public class DictGenerator implements IGeneratorPlugin {
 			printNodes();
 			printTail();
 			TextFile.closeTheFile(ps);
-			lang.msgln ( " Closed file " + fileName + " " + elCount + " elments and " + relCount + " relationships generated");
+			// lang.msgln ( elCount + " elments and " + relCount + " relationships generated");
 		}
-		lang.msgln("QUickRDA Data Dictionary Generator done.");
+		// lang.msgln("QuickRDA Data Dictionary Generator done.");
 		return ""; 
 	}
 
@@ -358,13 +360,13 @@ public class DictGenerator implements IGeneratorPlugin {
 	//			if (i > 0) endRow();
 	//			startRow();
 	//			printTableEntry(n.itsQualifierName,n.itsQualifier,"contents");
-				printEntry(n.itsQualifierName,n.itsQualifier,"");
+				printEntry((i > 1), n.itsQualifierName,n.itsQualifier,"");
 				lastQ = n.itsQualifierName;
 				lastT = "";
 			}
 			if (!n.itsTypeName.equals ( lastT )) {
 //				printTableEntry(n.itsTypeName,n.itsType,"contents");
-				printEntry(n.itsTypeName,n.itsType,"");
+				printEntry((i > 1), n.itsTypeName,n.itsType,"");
 				lastT = n.itsTypeName;
 			}
 		}
@@ -406,10 +408,10 @@ public class DictGenerator implements IGeneratorPlugin {
 		ps.println("<tr>");
 	}
 
-	private void printEntry ( String e, DMIElem link, String mclass) {
+	private void printEntry (boolean sep, String e,  DMIElem link, String mclass) {
 		String text = NameUtilities.escapeTextForHTML( e );
 		if (!"".equals ( mclass )) mclass = " class=\"" + mclass + "\"";
-		if (link != null) ps.printf("<a %s href=\"#%d\">%s</a> &middot ",mclass,link.itsIndex, text);
+		if (link != null) ps.printf("%s<a %s href=\"#%d\">%s</a>",sep ? " &middot " : "", mclass,link.itsIndex, text);
 		else      ps.printf("<span %s>%s</span>",mclass,text);
 	}
 	

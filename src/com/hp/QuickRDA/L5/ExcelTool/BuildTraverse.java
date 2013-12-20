@@ -111,7 +111,7 @@ public class BuildTraverse {
 			}
 			
 			Start.openLogFile( filePath + "\\" + BuildUtilities.escapeTextForFile (prefix) + "_log.txt", false);
-			
+			lang.msgln( "QuickRDA j" + Start.jVers + "x" + Start.xptXLVers + " building: '" + prefix + "'");
 			Builder bldr = new Builder ();
 
 			Application.ActiveWorkbook.Activate ();
@@ -158,12 +158,12 @@ public class BuildTraverse {
 				// IGeneratorPlugin igp = GeneratorPluginFinder.findPlugin (cmd, IGeneratorPlugin.class);
 				IGeneratorPlugin igp = PluginFinder.findGeneratorPlugin ( cmd );
 				if ( igp != null ) {
-				lang.msgln("Running Plugin: " + cmd);
+				// lang.msgln("Running Plugin: " + cmd);
 					@SuppressWarnings("unused")
 					String status = igp.generate ( genInfo, cmd );
 				}
 			}
-			
+			lang.msgln ( "Done." );
 			Start.closeLogFile();
 			
 			if ( !doAll )
